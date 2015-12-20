@@ -1,0 +1,3 @@
+type,font_r,font_g,font_b,box_border_r,box_border_g,box_border_b,box_back_r,box_back_g,box_back_b,pad_line_r,pad_line_g,pad_line_b,pad_back_r,pad_back_g,pad_back_b
+kingdom,255,255,255,0,0,0,110,110,220,30,30,100,150,150,150
+empire,255,255,255,10,10,10,0,0,0,0,0,0,255,255,255

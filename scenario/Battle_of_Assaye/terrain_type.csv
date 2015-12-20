@@ -1,0 +1,4 @@
+name,R,G,B,base_cost,pass
+open,100,200,100,1,TRUE
+hill,200,200,100,3,TRUE
+river,50,50,250,10,TRUE

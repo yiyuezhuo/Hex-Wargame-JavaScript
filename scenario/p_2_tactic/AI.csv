@@ -1,0 +1,5 @@
+#,AI,script,
+#,support,command,init
+init,0,5,5
+init,1,0,0
+init,2,0,0
