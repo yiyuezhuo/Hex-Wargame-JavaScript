@@ -4,7 +4,10 @@
 
 This is a project that want to develope a hex based wargame (classic) by javascript.
 
-completed:
+Code is cheap ,show you the image:
 
-1.Nice and custom hex and counter shape.
-2.Smooth slide and movement.
+![Alt image](/preview/pre.png)
+
+play it online(GitHub page)
+
+http://yiyuezhuo.github.io/games/project4/index.html
