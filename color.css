@@ -1,0 +1,51 @@
+.open {background-color:rgba(150,200,150,1);}
+.hill {background-color:rgba(200,200,100,1);}
+.river {background-color:rgba(100,100,250,1);}
+
+.British {background-color:rgba(255,50,50,1);border:2px solid rgba(0,0,0,1);}
+.British .pad {background-color:rgba(250,250,250,1);border:2px solid rgba(30,30,100,1);}
+.British .line {background-color:rgba(30,30,30,1);}
+.British .size {color:rgba(255,255,255,1);}
+.British .l0 {color:rgba(255,255,255,1);}
+.British .l1 {color:rgba(255,255,255,1);}
+.British .l2 {color:rgba(255,255,255,1);}
+
+.Indian {background-color:rgba(100,100,0,1);border:2px solid rgba(0,0,0,1);}
+.Indian .pad {background-color:rgba(200,200,0,1);border:2px solid rgba(0,0,0,1);}
+.Indian .line {background-color:rgba(0,0,0,1);}
+.Indian .size {color:rgba(255,255,255,1);}
+.Indian .l0 {color:rgba(255,255,255,1);}
+.Indian .l1 {color:rgba(255,255,255,1);}
+.Indian .l2 {color:rgba(255,255,255,1);}
+
+.Austria {background-color:rgba(240,240,240,1);border:2px solid rgba(220,220,20,1);}
+.Austria .pad {background-color:rgba(250,250,250,1);border:2px solid rgba(20,20,20,1);}
+.Austria .line {background-color:rgba(20,20,20,1);}
+.Austria .size {color:rgba(0,0,0,1);}
+.Austria .l0 {color:rgba(0,0,0,1);}
+.Austria .l1 {color:rgba(0,0,0,1);}
+.Austria .l2 {color:rgba(0,0,0,1);}
+
+.Russian {background-color:rgba(50,200,50,1);border:2px solid rgba(100,100,100,1);}
+.Russian .pad {background-color:rgba(255,255,255,1);border:2px solid rgba(0,0,0,1);}
+.Russian .line {background-color:rgba(0,0,0,1);}
+.Russian .size {color:rgba(255,255,255,1);}
+.Russian .l0 {color:rgba(255,255,255,1);}
+.Russian .l1 {color:rgba(255,255,255,1);}
+.Russian .l2 {color:rgba(255,255,255,1);}
+
+.Empire {background-color:rgba(0,0,0,1);border:2px solid rgba(10,10,10,1);}
+.Empire .pad {background-color:rgba(255,255,255,1);border:2px solid rgba(0,0,0,1);}
+.Empire .line {background-color:rgba(0,0,0,1);}
+.Empire .size {color:rgba(255,255,255,1);}
+.Empire .l0 {color:rgba(255,255,255,1);}
+.Empire .l1 {color:rgba(255,255,255,1);}
+.Empire .l2 {color:rgba(255,255,255,1);}
+
+.Kingdom {background-color:rgba(110,110,220,1);border:2px solid rgba(0,0,0,1);}
+.Kingdom .pad {background-color:rgba(150,150,150,1);border:2px solid rgba(30,30,100,1);}
+.Kingdom .line {background-color:rgba(30,30,100,1);}
+.Kingdom .size {color:rgba(255,255,255,1);}
+.Kingdom .l0 {color:rgba(255,255,255,1);}
+.Kingdom .l1 {color:rgba(255,255,255,1);}
+.Kingdom .l2 {color:rgba(255,255,255,1);}

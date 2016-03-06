@@ -149,8 +149,11 @@ function draw_hex(left,top,type){
 	three.forEach(function(degree){
 		var base=$('<div></div>');
 		//var degree=0;
-		base.css({'background-color':'rgb(150,200,150)',width:long_edge_length,height:short_edge_length,
+		//base.css({'background-color':'rgb(150,200,150)',width:long_edge_length,height:short_edge_length,
+		//		position:'absolute',transform:"rotate("+degree+"deg)",left:left+'px',top:top+'px'});
+		base.css({width:long_edge_length,height:short_edge_length,
 				position:'absolute',transform:"rotate("+degree+"deg)",left:left+'px',top:top+'px'});
+		//base.attr({class})//This place change to unimplement color
 		base.appendTo(map_el);	
 		els.push(base);
 	})
@@ -223,23 +226,35 @@ function random_color(){
 }
 function draw_counter(){
 	var box=$('<div></div>');
-	box.css({width:counter_x,height:counter_y,position:"absolute","background-color":"rgb(150,150,150)",'z-index':1,'user-select':'none',border:'2px solid #000'});
+	//box.css({width:counter_x,height:counter_y,position:"absolute","background-color":"rgb(150,150,150)",'z-index':1,'user-select':'none',border:'2px solid #000'});
+	box.css({width:counter_x,height:counter_y,position:"absolute",'z-index':1,'user-select':'none'});
+	box.attr({'class':'box'})
 	var size=$('<div></div>');
-	size.css({left:0,top:0,width:counter_x,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)",'text-align':'center'});
+	//size.css({left:0,top:0,width:counter_x,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)",'text-align':'center'});
+	size.css({left:0,top:0,width:counter_x,position:"absolute",'font-size':'10%','text-align':'center'});
+	size.attr({'class':'size'})
 	size.html('XX');
 	size.appendTo(box);
 	var pad=$('<div></div>');
 	//pad.css({width:25,height:17,position:"absolute","background-color":"rgb(200,200,200)",left:9,top:14,border:'2px solid #000','border-color':"rgb(0,0,0)"});
-	pad.css({width:25,height:17,position:"absolute","background-color":"rgb(200,200,200)",left:9,top:14,border:'2px solid rgb(100,50,10)'});
+	//pad.css({width:25,height:17,position:"absolute","background-color":"rgb(200,200,200)",left:9,top:14,border:'2px solid rgb(100,50,10)'});
+	pad.css({width:25,height:17,position:"absolute",left:9,top:14});
+	pad.attr({'class':'pad'})
 	pad.appendTo(box);
 	var l0=$('<div></div>');
-	l0.css({left:6,top:34,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)"});
+	//l0.css({left:6,top:34,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)"});
+	l0.css({left:6,top:34,position:"absolute",'font-size':'10%'});
+	l0.attr({'class':'l0'});
 	//l0.html('10');
 	var l1=$('<div></div>');
-	l1.css({left:18,top:34,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)"});
+	//l1.css({left:18,top:34,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)"});
+	l1.css({left:18,top:34,position:"absolute",'font-size':'10%'});
+	l1.attr({'class':'l1'});
 	//l1.html('21');
 	var l2=$('<div></div>');
-	l2.css({left:36,top:34,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)"});
+	//l2.css({left:36,top:34,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)"});
+	l2.css({left:36,top:34,position:"absolute",'font-size':'10%'});
+	l2.attr({'class':'l2'});
 	//l2.html('31');
 	l0.appendTo(box);l1.appendTo(box);l2.appendTo(box);
 	return {box:box,size:size,pad:pad,l0:l0,l1:l1,l2:l2};
@@ -266,16 +281,19 @@ function draw_line(x1,y1,x2,y2){
 		var x3=(x1+x2)/2-dd/2;
 		var y3=(y1+y2)/2;
 		var line=$("<div class='line' style='left: "+(x3)+"px; top: "+(y3)+"px;'></div>");
-		line.css({width:dd,height:2,position:"absolute",transform:"rotate("+degree+"deg)","background-color":"rgb(0,0,0)"});
+		//line.css({width:dd,height:2,position:"absolute",transform:"rotate("+degree+"deg)","background-color":"rgb(0,0,0)"});
+		line.css({width:dd,height:2,position:"absolute",transform:"rotate("+degree+"deg)"});
 		return line;
 }
 function Unit_click_box(){
 	this.state='start';
 	this.choose_unit=undefined;
-	this.unit_click=function(el){
+	this.unit_click=function(unit){
 		//这个函数是点击事件的入口,el应该是jQuery元素
 		//console.log('el_id',el.id);
-		var unit=unit_d[el.className];
+		//var unit=unit_d[el.className];
+		//var unit=unit_d[el.uid];
+		var el=unit.el;
 		console.log(unit.combat,unit.movement);
 		switch(phase_box.state[1]){
 			case 'move':
@@ -346,9 +364,10 @@ function Unit_click_box(){
 }
 function Hex_click_box(){
 	//this.state='start';
-	this.hex_click=function(el){
+	this.hex_click=function(hex){
 		//var hex=hex_d[]
-		var hex=hex_d[el.className];
+		//var hex=hex_d[el.className];
+		var el=hex.el;
 		console.log('hex:',hex.x,hex.y);
 		switch(phase_box.state[1]){
 			case 'move':
@@ -743,10 +762,11 @@ function Hex(x,y,left,top){
 	that=this;
 	this.el.click(function(){
 		//console.log('This is',x,y);
-		hex_click_box.hex_click(this);
+		hex_click_box.hex_click(that);
 	});
 	this.set_color=function(band){
 		//band是rgb三元数组，字符串化内部进行
+		
 		this.els.forEach(function(part){
 			part.css({'background-color':'rgb('+band[0]+','+band[1]+','+band[2]+')'})
 		})
@@ -767,7 +787,7 @@ function Hex(x,y,left,top){
 	}
 	//hex_l.push(this);
 	//hex_d[[x,y]]=this;
-	this.el.attr({class:String([x,y])});
+	//this.el.attr({class:String([x,y])});
 	var tran;
 	if (this.m%2===0){
 		tran=[[-1,-1],[-1,0],[0,1],[1,0],[1,-1],[0,-1]];
@@ -848,9 +868,10 @@ function Unit(id){
 		//hex_d[[m,n]].unit=this;
 	}
 	this.el.click(function(){
-		unit_click_box.unit_click(this);
+		unit_click_box.unit_click(that);
 	});
-	this.el.attr({class:id});
+	//this.el.attr({class:id});
+	//this.el.uid=id;
 	//unit_l.push(this);
 	//unit_d[id]=this;
 	map_el.append(this.el);
@@ -1028,6 +1049,8 @@ function Inf(id){
 	//下面是画一个北约军事符号步兵的叉
 	var line1=draw_line(0,0,25,16);
 	var line2=draw_line(0,16,25,0);
+	line1.addClass('line');
+	line2.addClass('line');
 	//pad.append(line1);
 	//pad.append(line2);
 	line1.appendTo(pad);
@@ -1038,6 +1061,7 @@ function Cav(id){
 	Unit.call(this,id);
 	var pad=this.els.pad;
 	var line2=draw_line(0,16,25,0);
+	line2.addClass('line');
 	line2.appendTo(pad);
 	this.els['line']=[line2];
 }
@@ -1048,6 +1072,8 @@ function HQ(id){
 	var line2=draw_line(13,8,25,8);
 	line1.css({'height':10});
 	line2.css({'height':10});
+	line1.addClass('line');
+	line2.addClass('line');
 	line1.appendTo(pad);
 	line2.appendTo(pad);
 	this.els['line']=[line1,line2];
@@ -1059,6 +1085,7 @@ function Art(id){
 	//var line2=draw_line(13,8,25,8);
 	var hole=$('<div></div>');
 	hole.css({width:7,height:7,'border-radius': '7px',left:'9px',top:'5px',position:'absolute'});
+	hole.addClass('line');
 	hole.appendTo(pad);
 	this.els['line']=[hole];
 }
@@ -1075,7 +1102,8 @@ function Panzer(id){
 	this.set_pad_line_color=function(rgb){
 		var r=rgb[0];var g=rgb[1];var b=rgb[2];
 		var rgbs='rgb('+r+','+g+','+b+')';
-		this.els.pad.css({border:'2px solid'+' rgb('+r+','+g+','+b+')'});
+		//this.els.pad.css({border:'2px solid'+' rgb('+r+','+g+','+b+')'});
+		this.els.pad.addClass('pad');
 		this.els.line.forEach(function(line){
 			//set_color(line,rgb,'background-color');
 			line.css({'background-color':'transparent',border:'2px '+rgbs+' solid'});
@@ -1136,22 +1164,10 @@ scenario_dic['hex_dic_list'].forEach(function(_hex){
 	hex.capture=_hex.capture;
 	hex.unit=null;//正在占据此格的单位
 	hex.pass=null;//正在通过的单位
-	/*
-	switch (hex.terrain){
-		case 'open':
-			hex.set_color([100,200,100]);
-			break;
-		case 'hill':
-			hex.set_color([200,200,100]);
-			break;
-		case 'river':
-			hex.set_color([50,50,250]);
-			break;
-	}
-	*/
 	var terr=terrain_d[hex.terrain];
-	//console.log(terr);
-	hex.set_color([terr.R,terr.G,terr.B]);
+	hex.els.forEach(function(el){
+		el.addClass(_hex.terrain);
+	})
 	
 	hex_l.push(hex);
 	hex_d[[hex.m,hex.n]]=hex;
@@ -1191,11 +1207,9 @@ scenario_dic['unit_dic_list'].forEach(function(_unit){
 	unit.img=_unit.img;
 	unit.group=_unit.group;
 	unit.combat_range=_unit.range;
-	unit.set_box_border_color(_unit.color.box_border);
-	unit.set_box_color(_unit.color.box_back);
-	unit.set_font_color(_unit.color.font);
-	unit.set_pad_color(_unit.color.pad_back);
-	unit.set_pad_line_color(_unit.color.pad_line);
+	
+	unit.el.addClass(_unit.color);
+		
 	unit.els.size.html(_unit.size);
 	unit.deco();
 	unit.set_hex(unit.m,unit.n);
@@ -1214,5 +1228,6 @@ scenario_dic['player_dic_list'].forEach(function(_player){
 
 phase_box.change_phase_to(0,'ready');
 event_box.fire('ready');
+//sphase_box.next_phase();
 
 var unit=unit_l[0];

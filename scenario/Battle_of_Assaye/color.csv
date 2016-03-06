@@ -1,7 +1,0 @@
-type,font_r,font_g,font_b,box_border_r,box_border_g,box_border_b,box_back_r,box_back_g,box_back_b,pad_line_r,pad_line_g,pad_line_b,pad_back_r,pad_back_g,pad_back_b
-kingdom,255,255,255,0,0,0,110,110,220,30,30,100,150,150,150
-empire,255,255,255,10,10,10,0,0,0,0,0,0,255,255,255
-Russian,255,255,255,100,100,100,50,200,50,0,0,0,255,255,255
-British,255,255,255,50,50,50,255,50,50,0,0,0,250,250,250
-Austria,0,0,0,220,220,20,240,240,240,20,20,20,150,150,150
-Indian,255,255,255,0,0,0,100,100,0,0,0,0,200,200,0

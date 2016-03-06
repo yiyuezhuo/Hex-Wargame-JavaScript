@@ -76,7 +76,7 @@ class Scenario(object):
         script=self.script
         big_dic={'unit_dic_list':unit_dic_list,'hex_dic_list':hex_dic_list,'size':self.size,
                  'player_dic_list':player_dic_list,'AI_list':AI_list,'CRT':CRT,
-                 'setting':setting,'script':script}
+                 'setting':setting,'script':script,'terrain':self.terrain_type}
         return json.dumps(big_dic)
     def to_javascript(self,out_name='output.js',obj_name='scenario_dic'):
         s=self.to_json()
@@ -145,9 +145,9 @@ class Empire_p(Player):
 class CSV_model(object):
     def __init__(self,scenario=None):
         self.path=None
-        self.register=['AI.csv','block.csv','capture.csv','color.csv',
-                       'label.csv','player.csv','terrain.csv','unit.csv',
-                       'VP.csv','CRT.csv','setting.csv','place.csv']
+        self.register=['AI.csv','block.csv','capture.csv',
+                       'label.csv','player.csv','terrain.csv','terrain_type.csv',
+                       'unit.csv','VP.csv','CRT.csv','setting.csv','place.csv']
         self.raw_register=['script.js']#raw里的文件不使用csv模块进行装载
         self.csv={}
         self.raw={}
@@ -227,12 +227,14 @@ class CSV_model(object):
     def parse_unit(self):
         '''这里同时解析unit.csv color.csv'''
         unit_l=self.pick_from_head(self.csv['unit.csv'])
+        '''
         color_r=self.pick_from_head(self.csv['color.csv'])
         color={l['type']:{} for l in color_r}
         for c in color_r:
             for t in ['font','box_border','box_back','pad_line','pad_back']:
                 rgb=(c[t+'_r'],c[t+'_g'],c[t+'_b'])
                 color[c['type']][t]=rgb
+        '''
         for unit_i in unit_l:
             unit=Unit()
             unit.id=unit_i['id']
@@ -245,7 +247,8 @@ class CSV_model(object):
             unit.label=unit_i['label']
             unit.pad=unit_i['pad']
             unit.img=unit_i['img']
-            unit.color=color[unit_i['color']]
+            #unit.color=color[unit_i['color']]
+            unit.color=unit_i['color']
             unit.group=unit_i['group']
             unit.range=unit_i['range']
             self.scenario.unit_list.append(unit)
@@ -274,6 +277,9 @@ class CSV_model(object):
                 a,b=key[1:].split(':')
                 dic_r[float(a)/float(b)]=item
         self.scenario.CRT=dic_r
+    def parse_terrain_type(self):
+        terrain_type=self.pick_from_head(self.csv['terrain_type.csv'])
+        self.scenario.terrain_type={record['name']:record for record in terrain_type}
     def parse_setting(self):
         setting=self.pick_from_head(self.csv['setting.csv'])[0]
         self.scenario.setting=setting
@@ -286,6 +292,7 @@ class CSV_model(object):
         self.parse_map()
         self.parse_unit()
         self.parse_player()
+        self.parse_terrain_type()
         self.parse_setting()
         self.parse_script()
         if place:
@@ -303,7 +310,7 @@ def trans(path,out_name='output.js',place=False):
 if __name__ == '__main__':
     if len(sys.argv)==1:#从spyder启动
         model=CSV_model()
-        model.load('scenario\\p_3_inner')
+        model.load('scenario\\Battle_of_Assaye')
         model.parse(place=True)
         model.to_javascript()
         print 'fin'
