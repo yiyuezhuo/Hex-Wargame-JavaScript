@@ -1,0 +1,46 @@
+.hex .head {
+	width: 0;
+	border-bottom-width: 25px;
+	border-bottom-style: solid;
+	border-bottom-color:#6C6;
+	border-left-width: 43.3012px;
+	border-left-style: solid;
+	border-left-color: transparent;
+	border-right-width: 43.3012px;
+	border-right-style: solid; 
+	border-right-color: transparent;
+}
+
+.hex .center{
+	width: 86.6025px;
+	height: 50px;
+	background-color: #6C6;
+}
+
+.hex .tail {
+	width: 0;
+	border-top-width: 25px;
+	border-top-style: solid;
+	border-top-color:#6C6;
+	border-left-width: 43.3012px;
+	border-left-style: solid;
+	border-left-color: transparent;
+	border-right-width: 43.3012px;
+	border-right-style: solid; 
+	border-right-color: transparent;
+}
+
+.open.hex .head {	border-bottom-color:rgba(50,200,50,0.5);}
+.open.hex .center {	background-color:rgba(50,200,50,0.5);}
+.open.hex .tail{border-top-color:rgba(50,200,50,0.5);}
+
+
+.hill.hex .head {	border-bottom-color:rgba(200,200,100,1);}
+.hill.hex .center {	background-color:rgba(200,200,100,1);}
+.hill.hex .tail{border-top-color:rgba(200,200,100,1);}
+
+.river.hex .head {	border-bottom-color:rgba(100,100,250,0.8);}
+.river.hex .center {	background-color:rgba(100,100,250,0.8);}
+.river.hex .tail{border-top-color:rgba(100,100,250,0.8);}
+
+

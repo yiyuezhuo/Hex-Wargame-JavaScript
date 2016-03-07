@@ -148,17 +148,27 @@ function draw_hex(left,top,type){
 	var els=[]
 	three.forEach(function(degree){
 		var base=$('<div></div>');
-		//var degree=0;
-		//base.css({'background-color':'rgb(150,200,150)',width:long_edge_length,height:short_edge_length,
-		//		position:'absolute',transform:"rotate("+degree+"deg)",left:left+'px',top:top+'px'});
 		base.css({width:long_edge_length,height:short_edge_length,
 				position:'absolute',transform:"rotate("+degree+"deg)",left:left+'px',top:top+'px'});
-		//base.attr({class})//This place change to unimplement color
 		base.appendTo(map_el);	
 		els.push(base);
 	})
 	return els;
 }
+function draw_hex2(left,top,type){
+	var root=$('<div></div>');
+	root.addClass('hex');
+	root.css({top:top-25,left:left,position:'absolute'});
+	root.appendTo(map_el);
+	['head','center','tail'].forEach(function(cname){
+		var c=$("<div></div>");
+		c.addClass(cname);
+		c.appendTo(root);
+	});
+	return root;
+}
+
+
 function attach_hex(left,top){
 	var base=$('<div></div>');
 	var diff_left=short_edge_length*Math.cos(Math.PI/6)-attach_edge/2;
@@ -755,7 +765,8 @@ function Hex(x,y,left,top){
 	this.n=y;//可能还是下面那个写法比较明显
 	this.left=left;
 	this.top=top;
-	this.els=draw_hex(left,top,default_hex_type);
+	//this.els=draw_hex(left,top,default_hex_type);
+	this.els=draw_hex2(left,top,default_hex_type);
 	this.el=attach_hex(left,top);//这个就是应该保持传一样的值，具体的细节在里面调节
 	this.bound=create_bound(left,top);
 	this.is_highlight=false;
@@ -1164,10 +1175,13 @@ scenario_dic['hex_dic_list'].forEach(function(_hex){
 	hex.capture=_hex.capture;
 	hex.unit=null;//正在占据此格的单位
 	hex.pass=null;//正在通过的单位
-	var terr=terrain_d[hex.terrain];
+	//var terr=terrain_d[hex.terrain];
+	/*
 	hex.els.forEach(function(el){
 		el.addClass(_hex.terrain);
 	})
+	*/
+	hex.els.addClass(_hex.terrain);
 	
 	hex_l.push(hex);
 	hex_d[[hex.m,hex.n]]=hex;
@@ -1187,7 +1201,7 @@ scenario_dic['unit_dic_list'].forEach(function(_unit){
 			unit=new HQ(_unit.id);
 			break;
 		case 'Artillery':
-			unit=new Art(_unit.id);
+			unit=new Art(_unit.id);	
 			break;
 		case 'Panzer':
 			unit=new Panzer(_unit.id);
