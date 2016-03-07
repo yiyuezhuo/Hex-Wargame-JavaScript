@@ -8,7 +8,9 @@ import json
 import csv
 import sys
 
-#实体们应该用类实现，然后各对象1输出字典格式，最后统一转成json由javascript读取
+# entities should be implemented by class,every class output a
+# dictionary. Thesee dictionary finally integrate to a 
+# JSON string
 
 class Hex(object):
     def __init__(self):
@@ -17,7 +19,8 @@ class Hex(object):
         self.VP=0
         self.terrain='open'
         self.label=''
-        self.capture=0#capture是谁占领着这个地区，一般只有VP点这个参数才有用。
+        self.capture=0
+        #capture mean who capture this hex,used by VP account
     def to_dict(self):
         dic={'m':self.m,'n':self.n,'VP':self.VP,'terrain':self.terrain,
              'label':self.label,'capture':self.capture}
@@ -35,14 +38,15 @@ class Unit(object):
         self.VP=0
         self.label=''
         self.pad='infantry'
-        self.img=''#这个应该是个静态地址，暂时不启用
+        self.img=''# Not Implemented
         self.group=0
-        self.color={'font':(0,0,0),'box_border':(0,0,0),'box_back':(0,0,0),
-                    'pad_back':(0,0,0),'pad_line':(0,0,0)}
+        self.size='XX'
+        #self.color={'font':(0,0,0),'box_border':(0,0,0),'box_back':(0,0,0),
+        #            'pad_back':(0,0,0),'pad_line':(0,0,0)}
     def to_dict(self):
         dic={'id':self.id,'side':self.side,'m':self.m,'n':self.n,'combat':self.combat,
         'movement':self.movement,'VP':self.VP,'label':self.label,'img':self.img,'color':self.color,
-        'pad':self.pad,'group':self.group,'range':self.range}
+        'pad':self.pad,'group':self.group,'range':self.range,'size':self.size}
         return dic
         
 class Player(object):
@@ -92,7 +96,6 @@ class Scenario(object):
                 hexij.n=j
                 self.hex_list.append(hexij)
     def sort_id(self):
-        #有这个方法就可以不用手工声明id了
         for i in  range(len(self.unit_list)):
             unit=self.unit_list[i]
             unit.id=i
@@ -148,11 +151,12 @@ class CSV_model(object):
         self.register=['AI.csv','block.csv','capture.csv',
                        'label.csv','player.csv','terrain.csv','terrain_type.csv',
                        'unit.csv','VP.csv','CRT.csv','setting.csv','place.csv']
-        self.raw_register=['script.js']#raw里的文件不使用csv模块进行装载
+        self.raw_register=['script.js']
+        # the files in raw don't use csv module to load
         self.csv={}
         self.raw={}
         self.root=''
-        self.mark={}#place的结果
+        self.mark={}#place result
         self.id_unit_dic={}
         if scenario!=None:
             self.scenario=scenario
@@ -183,17 +187,16 @@ class CSV_model(object):
             self.raw[reg]=f.read()
             f.close()
     def parse_AI(self):
-        #AI这里只移除注释行，剩余内容直接传入
+        # remove comment item only
         self.scenario.AI=[line for line in self.csv['AI.csv'] if line[0]!='#']
     def parse_map(self):
-        '''这里同时解析block.csv,capture.csv,label.csv,terrain.csv,VP.csv'''
+        '''parse block.csv,capture.csv,label.csv,terrain.csv,VP.csv at the same time'''
         block=self.csv['block.csv']
         capture=self.csv['capture.csv']
         label=self.csv['label.csv']
         terrain=self.csv['terrain.csv']
         VP=self.csv['VP.csv']
-        place=self.csv['place.csv']#该文件应该由terrain.csv复制生成，可以保留原来的地形名称，只要id是数字就行
-        #暂时削弱block的能力，使其只能屏蔽左上角以外的东西，因为不好实现
+        place=self.csv['place.csv']
         for i in range(len(block)):
             for j in range(len(block[0])):
                 if block[i][j]==1:
@@ -206,35 +209,24 @@ class CSV_model(object):
                     hex_ij.VP=VP[i][j]
                     hex_ij.capture=capture[i][j]
                     self.scenario.hex_list.append(hex_ij)
-                    #if place[i][j].isdigit():已经clean过了如果真是数字
                     if type(place[i][j])==int:
                         self.mark[place[i][j]]=[i,j]
         ml,nl=zip(*[[hex_.m,hex_.n] for hex_ in self.scenario.hex_list])
         ms,ns=set(ml),set(nl)
         self.scenario.size=(max(ms)+1,max(ns)+1)
     def place_rewrite(self):
-        #利用place.csv信息或者self.mark信息重写mn，若不调用这个方法就不会发生
         for unit_id in self.mark.keys():
             unit=self.id_unit_dic[unit_id]
             unit.m,unit.n=self.mark[unit_id]
     def pick_from_head(self,csv_list):
-        #这个应该解析一个CSV表成一个字典，当第一行是标记行时
+        # map a csv table to dictionary as records. First line is variable nam
         head=csv_list[0]
         id_dic={i:head[i] for i in range(len(head))}
         body=csv_list[1:]
         content=[{id_dic[i]:line[i] for i in range(len(line))} for line in body]
         return content
     def parse_unit(self):
-        '''这里同时解析unit.csv color.csv'''
         unit_l=self.pick_from_head(self.csv['unit.csv'])
-        '''
-        color_r=self.pick_from_head(self.csv['color.csv'])
-        color={l['type']:{} for l in color_r}
-        for c in color_r:
-            for t in ['font','box_border','box_back','pad_line','pad_back']:
-                rgb=(c[t+'_r'],c[t+'_g'],c[t+'_b'])
-                color[c['type']][t]=rgb
-        '''
         for unit_i in unit_l:
             unit=Unit()
             unit.id=unit_i['id']
@@ -247,10 +239,10 @@ class CSV_model(object):
             unit.label=unit_i['label']
             unit.pad=unit_i['pad']
             unit.img=unit_i['img']
-            #unit.color=color[unit_i['color']]
             unit.color=unit_i['color']
             unit.group=unit_i['group']
             unit.range=unit_i['range']
+            unit.size=unit_i['size']
             self.scenario.unit_list.append(unit)
             self.id_unit_dic[unit.id]=unit
     def parse_player(self):
@@ -262,7 +254,6 @@ class CSV_model(object):
             player.AI=player_i['AI']
             self.scenario.player_list.append(player)
     def parse_CRT(self):
-        #虽然这里进行解析，但先不实现将CRT加入实际转化中
         CRT=self.csv['CRT.csv']
         CRT_T=zip(*CRT)
         dice=CRT_T[0]
@@ -284,7 +275,7 @@ class CSV_model(object):
         setting=self.pick_from_head(self.csv['setting.csv'])[0]
         self.scenario.setting=setting
     def parse_script(self):
-        #script并不进行进一步处理，直接传给前端eval，当然如此性能就坑了
+        # script will be pass to frontend to eval
         self.scenario.script=self.raw['script.js']
     def parse(self,place=False):
         self.parse_AI()
@@ -308,7 +299,7 @@ def trans(path,out_name='output.js',place=False):
     print 'fin'
 
 if __name__ == '__main__':
-    if len(sys.argv)==1:#从spyder启动
+    if len(sys.argv)==1: #test
         model=CSV_model()
         model.load('scenario\\Battle_of_Assaye')
         model.parse(place=True)

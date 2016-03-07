@@ -66,18 +66,15 @@ function min(l,key){
 	else{
 		ll=l;
 	}
-	//console.log('ll',ll);
 	var minv=ll[0];
 	var index=0;
 	for (var i=0;i<l.length;i++){
 		var value=ll[i];
 		if (value<minv){
-			//console.log('value',value);
 			minv=value;
 			index=i;
 		}
 	}
-	//console.log('index',index);
 	return l[index];
 }
 function other(l,atom){
@@ -95,7 +92,6 @@ random=(function(){
 		return list[index];
 	};
 	module.shuffle=function(list){//
-		//python的shuffle是传引用的
 		var list_ing=list.slice();
 		console.log('list_ing',list_ing);
 		var list_build=[];
@@ -119,7 +115,7 @@ function distance(x1,y1,x2,y2){
 	return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
 }
 function hex_distance(n1,m1,n2,m2){
-	//这个专门算在当前尖顶六角格系统下的距离
+	//calulate the distance between two hex
 	
 	var y1=-n1;
 	var x1=m1-int(n1/2);
@@ -136,8 +132,7 @@ function hex_distance(n1,m1,n2,m2){
 }
 
 function draw_hex(left,top,type){
-	//因为用SVG太蛋疼，使用双层div，一层div专用CSS渲染六角格形状。不接收事件
-	//另一层div接受click事件并且对坐标系进行映射。抽象el元素应当同时管理这两个部分。
+	// hard code version
 	var three;
 	if (type==='tip'){
 		three=[0,60,120];
@@ -156,6 +151,7 @@ function draw_hex(left,top,type){
 	return els;
 }
 function draw_hex2(left,top,type){
+	// css version
 	var root=$('<div></div>');
 	root.addClass('hex');
 	root.css({top:top-25,left:left,position:'absolute'});
@@ -179,15 +175,13 @@ function attach_hex(left,top){
 }
 
 function create_hexs(m,n){
-	//用Hex创建m,n个hex并返回Hex矩阵。Hex进一步处理和修改应当在之后进行，这里只是初始化Hex网络
+	//test function
 	var i,j;
 	var mat=[];
 	var diff_i,diff_j,diff_k;
 	for (i=0;i<m;i++){
 		var line=[];
 		for(j=0;j<n;j++){
-			//console.log(i,j)
-			//diff_i=short_edge_length*Math.sin(Math.PI/6)*2+short_edge_length;
 			diff_i=short_edge_length*Math.sin(Math.PI/6)+short_edge_length;
 			diff_j=short_edge_length*Math.cos(Math.PI/6)*2;
 			if ((i%2)===1){
@@ -203,7 +197,7 @@ function create_hexs(m,n){
 	return mat;
 }
 function create_bound(left,top){
-	//放线的点，该点最后不会在线上
+	// create bound around hex
 	var L=short_edge_length;
 	var sin=Math.sin(Math.PI/6);
 	var cos=Math.cos(Math.PI/6);
@@ -229,48 +223,36 @@ function create_bound(left,top){
 function random_color(){
 	var band=[];
 	for(var i=0;i<3;i++){
-		//band.push(int(random.random()*255));
 		band.push(155+int(random.random()*100));
 	}
 	return band;
 }
 function draw_counter(){
 	var box=$('<div></div>');
-	//box.css({width:counter_x,height:counter_y,position:"absolute","background-color":"rgb(150,150,150)",'z-index':1,'user-select':'none',border:'2px solid #000'});
 	box.css({width:counter_x,height:counter_y,position:"absolute",'z-index':1,'user-select':'none'});
 	box.attr({'class':'box'})
 	var size=$('<div></div>');
-	//size.css({left:0,top:0,width:counter_x,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)",'text-align':'center'});
 	size.css({left:0,top:0,width:counter_x,position:"absolute",'font-size':'10%','text-align':'center'});
 	size.attr({'class':'size'})
 	size.html('XX');
 	size.appendTo(box);
 	var pad=$('<div></div>');
-	//pad.css({width:25,height:17,position:"absolute","background-color":"rgb(200,200,200)",left:9,top:14,border:'2px solid #000','border-color':"rgb(0,0,0)"});
-	//pad.css({width:25,height:17,position:"absolute","background-color":"rgb(200,200,200)",left:9,top:14,border:'2px solid rgb(100,50,10)'});
 	pad.css({width:25,height:17,position:"absolute",left:9,top:14});
 	pad.attr({'class':'pad'})
 	pad.appendTo(box);
 	var l0=$('<div></div>');
-	//l0.css({left:6,top:34,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)"});
 	l0.css({left:6,top:34,position:"absolute",'font-size':'10%'});
 	l0.attr({'class':'l0'});
-	//l0.html('10');
 	var l1=$('<div></div>');
-	//l1.css({left:18,top:34,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)"});
 	l1.css({left:18,top:34,position:"absolute",'font-size':'10%'});
 	l1.attr({'class':'l1'});
-	//l1.html('21');
 	var l2=$('<div></div>');
-	//l2.css({left:36,top:34,position:"absolute",'font-size':'10%','color':"rgb(255,255,255)"});
 	l2.css({left:36,top:34,position:"absolute",'font-size':'10%'});
 	l2.attr({'class':'l2'});
-	//l2.html('31');
 	l0.appendTo(box);l1.appendTo(box);l2.appendTo(box);
 	return {box:box,size:size,pad:pad,l0:l0,l1:l1,l2:l2};
 }
 function draw_line(x1,y1,x2,y2){
-		//console.log(x1,y1,x2,y2);
 		var dx=x2-x1;
 		var dy=y2-y1;
 		var dd=Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
@@ -291,25 +273,23 @@ function draw_line(x1,y1,x2,y2){
 		var x3=(x1+x2)/2-dd/2;
 		var y3=(y1+y2)/2;
 		var line=$("<div class='line' style='left: "+(x3)+"px; top: "+(y3)+"px;'></div>");
-		//line.css({width:dd,height:2,position:"absolute",transform:"rotate("+degree+"deg)","background-color":"rgb(0,0,0)"});
 		line.css({width:dd,height:2,position:"absolute",transform:"rotate("+degree+"deg)"});
 		return line;
 }
+
 function Unit_click_box(){
+	// deal event about player unit click 
 	this.state='start';
 	this.choose_unit=undefined;
 	this.unit_click=function(unit){
-		//这个函数是点击事件的入口,el应该是jQuery元素
-		//console.log('el_id',el.id);
-		//var unit=unit_d[el.className];
-		//var unit=unit_d[el.uid];
+		// player click enter point
 		var el=unit.el;
 		console.log(unit.combat,unit.movement);
 		switch(phase_box.state[1]){
 			case 'move':
 				console.log('enter move')
 				switch(this.state){
-					case 'start'://目前start,choosed这些状态变成move阶段下专用的
+					case 'start'://now state "start","choosed" is special for phase move
 						this.try_choose(unit);
 						break;
 					case 'choosed':
@@ -317,7 +297,7 @@ function Unit_click_box(){
 						break;
 				break;
 				}
-			case 'combat'://combat下有普通的join状态与追击状态
+			case 'combat'://there're join state purchase state
 				switch(this.state){
 					case 'join':
 						console.log('enter combat');
@@ -364,7 +344,7 @@ function Unit_click_box(){
 		if (phase_box.is_choose_able(unit)){
 			this.choose_unit=unit;
 			this.reset_focus();
-			this.state='choosed';//目前实现的应该是此货处于此状态时点击另一个Hex就移动过去。
+			this.state='choosed';// if you are in this state and you click other hex,you should move to it.
 		}
 		else{
 			console.log('you can not choose a unit in error phase');
@@ -373,10 +353,7 @@ function Unit_click_box(){
 	
 }
 function Hex_click_box(){
-	//this.state='start';
 	this.hex_click=function(hex){
-		//var hex=hex_d[]
-		//var hex=hex_d[el.className];
 		var el=hex.el;
 		console.log('hex:',hex.x,hex.y);
 		switch(phase_box.state[1]){
@@ -419,31 +396,31 @@ function Hex_click_box(){
 	}
 }
 function Battle_box(){
-	//这个对象的背后可能会影响的UI在toolbox里
+	// this object would effect UI in toolbox
 	this.atk_unit_list=[];
 	this.def_unit_list=[];
 	this.pursuit_hex_list=[];
 	this.pursuit_unit_list=[];
 	this.cache_def_loc=[];
-	this.attack_type_map={}//从unit.id映射到其攻击方式，有两种melee与range，除了距离1攻击外全部置range，该值应在do_it阶段计算
+	this.attack_type_map={};
+	// map unit.id to attack mode that include melee and range. if unit range property is 1 then set melee else range. 
+	//This value is handled by phase do_it
 	var that=this;
-	//this.state='ready';//battle_box有ready阶段，此时点击的意思是使其卷入一场战斗，
-	//另一个pursuit，此时点击表示追击到格子中
 	this.join_able=function(unit){
-		//这个函数按照当前已加入的单位判定视图加入的单位是否是合法的,注意这里没有加入到“哪一边”的自由度
-		//这里的实现是可以一个单位攻击多个单位或多个单位攻击一个单位，但不能多对多。但是至少应从一个守方单位开始
-		//选起
+		// whether unit is valid to join the fight is judged by this function. Notice no way to set "join who".
+		// It's permit for many vs one or one vs many,but not many vs many.
+		// A attack declare should start by ( to click ) a defender unit.
 		var atk_unit_list=this.atk_unit_list;
 		var def_unit_list=this.def_unit_list;
-		if (unit.fight_number>0){//目前没有可能连战的单位
+		if (unit.fight_number>0){//no unit can do successive battle 
 			return false;
 		}
 		if (member(unit.id,this.atk_unit_list.map(function(unit){return unit.id}))||
 			member(unit.id,this.def_unit_list.map(function(unit){return unit.id}))){
-				return false;//不允许出现两次
+				return false;// it's impossible appears two times
 		}
 		if(unit.side===phase_box.state[0]){
-			//选择当前阶段而言的己方单位
+			// select units who are "self" for player who is playing
 			if (def_unit_list.length===0){
 				return false;
 			}
@@ -454,13 +431,12 @@ function Battle_box(){
 				else{
 					var def=def_unit_list[0];
 					var nei=hex_d[[def.m,def.n]].nei;
-					//return member([unit.m,unit.n],nei);
-					return unit.in_range([def.m,def.n]);//远程化
+					return unit.in_range([def.m,def.n]);// range attack deal
 				}
 			}
 		}
 		else{
-			//选择当前阶段而言的敌方单位
+			// select units are "enemy" for player who is playing
 			if (atk_unit_list.length>1){
 				return false;
 			}
@@ -473,8 +449,7 @@ function Battle_box(){
 			else{
 				var atk=atk_unit_list[0];
 				var nei=hex_d[[atk.m,atk.n]].nei;
-				//return member([unit.m,unit.n],nei);
-				return unit.in_range([atk.m,atk.n]);//远程化
+				return unit.in_range([atk.m,atk.n]);//range attack deal
 			}
 		}
 	}
@@ -483,7 +458,6 @@ function Battle_box(){
 			if (unit.side===phase_box.state[0]){
 				this.atk_unit_list.push(unit);
 				toolbox.battle_odds_attack.append($('<p>'+unit.to_tag()+'</p>'));
-				//if (hex_distance())
 				console.log('join atk');
 			}
 			else{
@@ -497,15 +471,13 @@ function Battle_box(){
 		}
 	}
 	this.do_it=function(){
-		//完成结算并重置状态
+		// complete deal and reset state
 		var atk_id_list_t=that.atk_unit_list.map(function(unit){return unit.id});
 		var def_id_list=that.def_unit_list.map(function(unit){return unit.id});
 		that.cache_def_loc=that.def_unit_list.map(function(unit){return hex_d[[unit.m,unit.n]]});
-		that.atk_unit_list.forEach(function(unit){//这段逻辑更新attack_type_map为之后分类处理战果与追击做准备
+		that.atk_unit_list.forEach(function(unit){//update attack_type_map
 			var mn=[unit.m,unit.n];
-			//var def_loc= this.def_unit_list.map(function(unit){return hex_d[[unit.m,unit.n]]});
 			var def_loc=that.cache_def_loc;
-			//return !any(def_loc.map(function(hex){return member(mn,hex.nei)}));
 			if (any(def_loc.map(function(hex){return member(mn,hex.nei)}))){
 				that.attack_type_map[unit.id]='melee';
 			}
@@ -513,8 +485,8 @@ function Battle_box(){
 				that.attack_type_map[unit.id]='range';
 			}
 		})
-		var atk_id_list_r=[];//参与结算的id list
-		var atk_id_list_s=[];//化为战斗力但不参与结算的id list
+		var atk_id_list_r=[];//result. join result process
+		var atk_id_list_s=[];//support. add combat value but not join result process
 		atk_id_list_t.forEach(function(unit_id){
 			var unit=unit_d[unit_id];
 			if (that.is_range_attack(unit)){
@@ -533,17 +505,8 @@ function Battle_box(){
 		}
 		var result=do_battle(atk_id_list_r,def_id_list,buff);
 		that.result_follow(result);
-		//this.atk_unit_list=[];
-		//this.def_unit_list=[];
-		//that.reset();
 	}
 	this.is_range_attack=function(unit){
-		//这个判定一场战斗中一般是攻方的一个单位是否参与的是远程攻击，虽然可能之前标注更好，但那样不好维护
-		/*
-		var mn=[unit.m,unit.n];
-		var def_loc= this.def_unit_list.map(function(unit){return hex_d[[unit.m,unit.n]]});
-		return !any(def_loc.map(function(hex){return member(mn,hex.nei)}));
-		*/
 		if (this.attack_type_map[unit.id]==='melee'){
 			return false;
 		}
@@ -552,37 +515,31 @@ function Battle_box(){
 		}
 	}
 	this.result_follow=function(result){
-		//result就是'EX'那些字符串之类的，此函数处理它们的后续，如为了协调追击做的状态改变等。
+		// result is string in the CRT as "EX"
 		this.atk_unit_list.forEach(function(unit){unit.fight_number+=1;});
 		this.def_unit_list.forEach(function(unit){unit.fight_number+=1;});
-		//远程化以后应当移除不是相邻单位的追击能力
+		// range attack unit can't pursuit
 		switch(result){
 			case 'DR':
-				//this.pursuit_hex_list=this.def_unit_list.map(function(unit){return hex_d[[unit.m,unit.n]]});
 				this.pursuit_hex_list=this.cache_def_loc;
-				//this.pursuit_unit_list=this.atk_unit_list;
 				this.pursuit_unit_list=this.atk_unit_list.filter(function(unit){return !that.is_range_attack(unit)});
 				break;
 			case 'DE':
-				//this.pursuit_hex_list=this.def_unit_list.map(function(unit){return hex_d[[unit.m,unit.n]]});
-				//这里有个麻烦是副作用本来是设了这些单位mn为undefined的，现在只好不这样办了
 				this.pursuit_hex_list=this.cache_def_loc;
-				//this.pursuit_unit_list=this.atk_unit_list;
 				this.pursuit_unit_list=this.atk_unit_list.filter(function(unit){return !that.is_range_attack(unit)});
 				break;
 			case 'EX':
-				//this.pursuit_hex_list=this.def_unit_list.map(function(unit){return hex_d[[unit.m,unit.n]]});
 				this.pursuit_hex_list=this.cache_def_loc;
 				this.pursuit_unit_list=this.atk_unit_list.filter(function(unit){return !unit.removed});
 				this.pursuit_unit_list=this.atk_unit_list.filter(function(unit){return !that.is_range_attack(unit)});
 				break;
 		}
 		if (this.pursuit_hex_list.length>0 && this.pursuit_unit_list.length>0){
-			//正式开始处理追击
-			unit_click_box.state='wait_choose';//有别于开始的join
+			// deal pursuit
+			unit_click_box.state='wait_choose';
 		}
 		else{
-			this.reset();//回归继续join-do it 流程
+			this.reset();//return to join-do it process
 			this.pursuit_reset();
 		}
 	}
@@ -599,7 +556,6 @@ function Battle_box(){
 		this.pursuit_unit_list=[];
 	}
 	this.do_pursuit=function(unit,hex){
-		//unit.move_to(target[0],target[1],100, "linear",'no_focus');
 		unit.move_to(hex.m,hex.n,100, "linear",'no_focus');
 		this.pursuit_reset();
 		this.reset();
@@ -607,7 +563,7 @@ function Battle_box(){
 	this.pursuit_unit_able=function(unit){
 		return member(unit.id,this.pursuit_unit_list.map(function(unit){return unit.id}));
 	}
-	this.pursuit_hex_able=function(hex){//pursuit_hex_list本来就是mn序列
+	this.pursuit_hex_able=function(hex){
 		console.log([hex.m,hex.n],this.pursuit_hex_list.map(function(hex){return [hex.m,hex.n]}));
 		return member([hex.m,hex.n],this.pursuit_hex_list.map(function(hex){return [hex.m,hex.n]}));
 	}
@@ -618,30 +574,25 @@ function Battle_box(){
 	}
 }
 function Phase_box(){
-	//这个“静态”对象应该处理有关阶段切换的有关逻辑，toolbox除了提供ui，主逻辑也应该由它执行。
+	// this static object should handle logic about phase and turn shift
 	this.turn=1;
 	this.state=[0,'ready'];
 	var that=this;
 	
-	this.next_phase=function(){//这货作为<a>的回调函数，this表示的是a标签，应该用that转为引用此对象
+	this.next_phase=function(){// the callback function bind on next_phase <a> tag
 		unit_click_box.remove_focus();
 		switch (that.state[1]){
 			case 'ready':
-				//this.state=[this.state[0],'move'];
 				toolbox.AI_run_a.hide();
 				that.change_phase_to(that.state[0],'move');
 				unit_click_box.state='start';
 				break;
 			case 'move':
-				//this.state=[this.state[0],'combat'];
-
 				unit_click_box.state='join';
 				that.change_phase_to(that.state[0],'combat');
 				toolbox.combat_box.show();
 				break;
 			case 'combat':
-				//this.state=[this.next_player(),'ready'];
-
 				var ending_player=player_d[that.state[0]];
 				var next_player=player_d[that.next_player_id()]
 				ending_player.end();
@@ -649,7 +600,6 @@ function Phase_box(){
 				next_player.ready();
 				toolbox.combat_box.hide();
 				toolbox.AI_run_a.show();
-				//ready阶段，在你处理的时候，自动恢复阶段已经结束，这里处理的是其他东西，如资源调配
 				that.turn+=1;
 				break;
 		}
@@ -677,13 +627,11 @@ function Phase_box(){
 	this.is_choose_able=function(unit){
 		return unit.side===this.state[0] && this.state[1]==='move';
 	}
-	//this.change_phase_to(0,'ready');
 }
 function Toolbox(){
 	this.el=$('#toolbox');
 	this.el.css({'z-index':20,position:'fixed','background-color': 'rgb(250, 250, 250)'});
-	//this.el.append($('<div>HeHe</div>'));
-	var next_phase_a=$('#next_phase_a');//这个如果性能不过关就动态创建
+	var next_phase_a=$('#next_phase_a');
 	next_phase_a.click(phase_box.next_phase);
 	this.show_widget=$('#turn_state');
 	this.do_it_a=$('#do_it_a');
@@ -700,7 +648,6 @@ function Toolbox(){
 	this.chase_a.hide();
 	this.AI_run_a.click(AI_run);
 	this.el.css({width:'100px'});
-	//this.AI_run_a.hide();
 	this.description_name=$('#description_name');
 	this.description_author=$('#description_author');
 	this.description_name.html(scenario_dic.setting.name);
@@ -733,7 +680,7 @@ function News_box(){
 	this.el.hide();
 }
 function Player(side_id){
-	//player级的状态管理由这里处理,以及一些诸如选择全体算子的处理方法
+	//player level state manager
 	this.side=side_id;
 	this.id=side_id;
 	var that=this;
@@ -762,22 +709,18 @@ function Hex(x,y,left,top){
 	this.x=x;
 	this.y=y;
 	this.m=x;
-	this.n=y;//可能还是下面那个写法比较明显
+	this.n=y;// hell name for compatibel
 	this.left=left;
 	this.top=top;
-	//this.els=draw_hex(left,top,default_hex_type);
 	this.els=draw_hex2(left,top,default_hex_type);
-	this.el=attach_hex(left,top);//这个就是应该保持传一样的值，具体的细节在里面调节
+	this.el=attach_hex(left,top);
 	this.bound=create_bound(left,top);
 	this.is_highlight=false;
 	that=this;
 	this.el.click(function(){
-		//console.log('This is',x,y);
 		hex_click_box.hex_click(that);
 	});
-	this.set_color=function(band){
-		//band是rgb三元数组，字符串化内部进行
-		
+	this.set_color=function(band){		
 		this.els.forEach(function(part){
 			part.css({'background-color':'rgb('+band[0]+','+band[1]+','+band[2]+')'})
 		})
@@ -796,9 +739,6 @@ function Hex(x,y,left,top){
 			that.is_highlight=false;
 		})
 	}
-	//hex_l.push(this);
-	//hex_d[[x,y]]=this;
-	//this.el.attr({class:String([x,y])});
 	var tran;
 	if (this.m%2===0){
 		tran=[[-1,-1],[-1,0],[0,1],[1,0],[1,-1],[0,-1]];
@@ -825,7 +765,6 @@ function set_color(el,rgb,key){
 	el.css(dic);
 }
 function Unit(id){
-	//console.log('Unit',id);
 	var that=this;
 	this.id=id;
 	this.els=draw_counter();
@@ -833,10 +772,10 @@ function Unit(id){
 	this.combat=0;
 	this.movement=0;
 	this.mp=0;
-	this.short_path={};//该量在每次可达域计算时作为副作用重置，在寻路时使用
+	this.short_path={};//  this value is set by find way method
 	this.surplus_map={};
 	this.removed=false;
-	this.fight_number=0;//本回合中已经战斗次数，也许会有多次战斗允许的需要
+	this.fight_number=0;// fight time in this turn 
 	this.combat_range=1;
 	this.deco=function(){
 		this.els.l0.html(this.combat);
@@ -852,16 +791,13 @@ function Unit(id){
 	}
 	this.set_hex=function(m,n){
 		this.hex_move(this.m,this.n,m,n);
-		//hex_d[[this.m,this.n]].unit=null;
 		var left=mat[m][n].left+short_edge_length*Math.cos(Math.PI/6)-counter_x/2;
 		var top=mat[m][n].top+short_edge_length/2-counter_y/2;
 		this.el.css({left:left,top:top});
 		this.m=m;
 		this.n=n;
-		//hex_d[[m,n]].unit=this;
 	}
 	this.move_to=function(m,n,duration,pattern,mode,pass){
-		//hex_d[[this.m,this.n]].unit=null;
 		if (pass===undefined){
 			this.hex_move(this.m,this.n,m,n);
 		}
@@ -875,20 +811,12 @@ function Unit(id){
 		}
 		this.m=m;
 		this.n=n;
-		//this.mp-=1;这个消耗不能在这个阶段得到正确的计算
-		//hex_d[[m,n]].unit=this;
 	}
 	this.el.click(function(){
 		unit_click_box.unit_click(that);
 	});
-	//this.el.attr({class:id});
-	//this.el.uid=id;
-	//unit_l.push(this);
-	//unit_d[id]=this;
 	map_el.append(this.el);
 	this.set_font_color=function(rgb){
-		//var r=rgb[0];var g=rgb[1];var b=rgb[2];
-		//this.els.size.css({'color':'rgb('+r+','+g+','+b+')'})
 		set_color(this.els.size,rgb);
 		set_color(this.els.l0,rgb);
 		set_color(this.els.l1,rgb);
@@ -898,8 +826,6 @@ function Unit(id){
 		set_color(this.els.box,rgb,'background-color');
 	};
 	this.set_box_border_color=function(rgb){
-		//border:'2px solid #000','border-color':"rgb(0,0,0)"
-		//set_color(this.els.box,rgb,'')
 		var r=rgb[0];var g=rgb[1];var b=rgb[2];
 		this.els.box.css({border:'2px solid'+' rgb('+r+','+g+','+b+')'});
 	}
@@ -915,7 +841,6 @@ function Unit(id){
 		})
 	}
 	this.hex_move=function(m1,n1,m2,n2){
-		//console.log('hex_move:',m1,n1,m2,n2);
 		hex_d[[m1,n1]].unit=null;
 		hex_d[[m2,n2]].unit=this;
 	}
@@ -924,7 +849,6 @@ function Unit(id){
 		hex_d[[m2,n2]].pass=this;
 	}
 	this.move_to_path=function(target_m,target_n){
-		//console.log('move_to_path:',this,target_m,target_n);
 		var ing_m=this.m;
 		var ing_n=this.n;
 		var path=[];
@@ -935,14 +859,11 @@ function Unit(id){
 			return;
 		}
 		
-		//console.log('path:',path);
 		path.forEach(function(node){
-			that.move_to(node[0],node[1],100, "linear",'focus','pass');//这种运动应当持有特殊参数来使得
-			//hex_mode行为发生变化，不是正常的进入取出，否则无法解决经过友方单位时将该格置null的bug
+			that.move_to(node[0],node[1],100, "linear",'focus','pass');
 		})
 		this.hex_move(ing_m,ing_n,target_m,target_n);
 		this.mp=this.surplus_map[[target_m,target_n]];
-		//console.log(path);
 	}
 	this.zoc_map=function(mn){
 		var hex=hex_d[mn];
@@ -951,7 +872,6 @@ function Unit(id){
 		player_l.forEach(function(player){
 			map[player.id]=any(hex.nei.map(function(nei_id){
 				var nei= hex_d[nei_id];
-				//console.log('mn',mn,'nei.unit',nei.unit,'nei.unit.side',nei.unit ? nei.unit.side:'unit=null','player.id',player.id)
 				if (nei.unit===null || nei.unit.side===player.id){
 					return false;
 				}
@@ -965,57 +885,35 @@ function Unit(id){
 	this.move_cost=function(mn,surplus){
 			var hex=hex_d[mn];
 			var base_cost=terrain_d[hex.terrain].base_cost;
-			//var base_cost;
-			/*
-			switch(hex.terrain){
-				case 'open':
-					base_cost=1;
-					break;
-				case 'hill':
-					base_cost=3;
-					break;
-				case 'river'://按目前的设置就表示不可通行
-					base_cost=10;
-					break;
-			}
-			*/
-			//console.log(this.zoc_map(mn));
 			if (hex.unit!==null && hex.unit.side!==this.side){
-				return Math.max(surplus+1,1);//从而trick的禁止移动
+				return Math.max(surplus+1,1);// trick way to ban move
 			}
-			if (this.zoc_map(mn)[this.side]){//这里有个布尔代数trick重构时注意
-				//console.log('zoc_map',this.zoc_map(mn));
+			if (this.zoc_map(mn)[this.side]){
 				return Math.max(surplus,base_cost);
 			}
 			return base_cost;
-			//return 1；
-	};//这是将hex_mn映射到移动力消耗上，暂时是个常数函数
+	};
 
 	this.move_range=function(){
-		//这个方法应该给出可行域以及可行域中的所有hex的最短路径。继续用dij算法
+		// this method should return feasible space and shortest path in all hex in feasible space. 
 		var that=this;
-		this.short_path={};//映射到当前最优路线的所过节点表
-		this.short_path[[this.m,this.n]]=[[this.m,this.n]];//最优路线是包含初始点的，之后利用时可能需要删除
+		this.short_path={};// map to node list in best path searched by current
+		this.short_path[[this.m,this.n]]=[[this.m,this.n]];// best path include start point
 		var mp_s=this.mp;
-		var set={};//映射到当前最优路径的移动力消耗
+		var set={};// map to best cost in best path in current find
 		set[[this.m,this.n]]=this.mp;
-		//var set_l=[[this.m,this.n]];
 		var activate_list=[[this.m,this.n]];
-		//var zoc_cost=
 		while (activate_list.length!==0){
 			var activate_list_b=[];
 			activate_list.forEach(function(act_mn){
-				//var act=hex_d[act_mn[0],act_mn[1]];
 				var act=hex_d[act_mn];
 				act.nei.forEach(function(try_mn){
 					var try_s=set[act_mn]-that.move_cost(try_mn,set[act_mn]);
-					//console.log(try_mn,try_s);
 					if ((set[try_mn]===undefined && try_s>=0)||(set[try_mn]!==undefined && set[try_mn]<try_s)){
 						set[try_mn]=try_s;
 						var build_path=copy(that.short_path[act_mn]);
 						build_path.push(try_mn);
 						that.short_path[try_mn]=build_path;
-						//set_l.push(try_mn);
 						if (try_s>0){
 							activate_list_b.push(try_mn);
 						}
@@ -1024,13 +922,10 @@ function Unit(id){
 			})
 			activate_list=activate_list_b;
 		}
-		//return set_l;
-		//禁止移动到相同单位所在格，所以常规运动前应判定其map属性值是否是可行的。
+		// unit can't move to its self location
 		var r_set={}
 		for (var key in set){
 			if(hex_d[key].unit===null){
-				//console.log('hit',map[key],'->undefined');
-				//set[key]=undefined;
 				r_set[key]=set[key];
 			}
 		}
@@ -1043,27 +938,23 @@ function Unit(id){
 		hex_d[[this.m,this.n]].unit=null;
 	}
 	this.to_tag=function(){
-		//这个函数会返回一个简介字符串，用于插入到odds里显示
+		// this function return a introduction string to insert item odds to display
 		return this.label+':'+this.combat;
 	};
-	this.in_range=function(mn){//判定mn这个格子是否在自己的“射程内”，这个射程暂时是unit.csv描述的，一般是1，即没有远程能力
+	this.in_range=function(mn){
+		// to judge whether this hex can be attacked to its range. Range is description by unit.csv, for "melee" unit ,is 1 .
 		return hex_distance(this.m,this.n,mn[0],mn[1])<=this.combat_range;
 	}
 
 }
 function Inf(id){
-	//console.log('Inf',id);
 	Unit.call(this,id);
 	var pad=this.els.pad;
-	//var line1=$('<div></div>');
-	//line1.css({position:"absolute",left:0,top:9,width:Math.sqrt(25*25+17*17),height:2},);
-	//下面是画一个北约军事符号步兵的叉
+	// following code paint a cross represent infantry in NATO military note system
 	var line1=draw_line(0,0,25,16);
 	var line2=draw_line(0,16,25,0);
 	line1.addClass('line');
 	line2.addClass('line');
-	//pad.append(line1);
-	//pad.append(line2);
 	line1.appendTo(pad);
 	line2.appendTo(pad);
 	this.els['line']=[line1,line2];
@@ -1092,8 +983,6 @@ function HQ(id){
 function Art(id){
 	Unit.call(this,id);
 	var pad=this.els.pad;
-	//var line1=draw_line(0,0,13,0);
-	//var line2=draw_line(13,8,25,8);
 	var hole=$('<div></div>');
 	hole.css({width:7,height:7,'border-radius': '7px',left:'9px',top:'5px',position:'absolute'});
 	hole.addClass('line');
@@ -1103,20 +992,16 @@ function Art(id){
 function Panzer(id){
 	Unit.call(this,id);
 	var pad=this.els.pad;
-	//var line1=draw_line(0,0,13,0);
-	//var line2=draw_line(13,8,25,8);
 	var hole=$('<div></div>');
 	hole.css({width:14,height:8,'border-radius': '5px/5px',left:'4px',top:'3px',position:'absolute'});
 	hole.appendTo(pad);
 	this.els['line']=[hole];
-	//重写set_pad_line_color方法，因为它不能遵循普通的绘图模型
+	// rewrite set_pad_line_color method because it is not fit ordinary plot model
 	this.set_pad_line_color=function(rgb){
 		var r=rgb[0];var g=rgb[1];var b=rgb[2];
 		var rgbs='rgb('+r+','+g+','+b+')';
-		//this.els.pad.css({border:'2px solid'+' rgb('+r+','+g+','+b+')'});
 		this.els.pad.addClass('pad');
 		this.els.line.forEach(function(line){
-			//set_color(line,rgb,'background-color');
 			line.css({'background-color':'transparent',border:'2px '+rgbs+' solid'});
 		})
 	}
@@ -1124,8 +1009,6 @@ function Panzer(id){
 function Horse_Artillery(id){
 	Unit.call(this,id);
 	var pad=this.els.pad;
-	//var line1=draw_line(0,0,13,0);
-	//var line2=draw_line(13,8,25,8);
 	var hole=$('<div></div>');
 	hole.css({width:7,height:7,'border-radius': '7px',left:'9px',top:'5px',position:'absolute'});
 	hole.appendTo(pad);
@@ -1147,14 +1030,10 @@ var AI_box= new AI_box_class()
 AI_box.setup(scenario_dic.AI_list);
 
 
-//draw_hex(50,50,'tip');
-//draw_hex(200,200,'lie');
-//Hex(10,11,350,200);
-
 var unit_l=[];
-var unit_d={};//unit的key是外部的id，该id是标准化文件中应该携带
+var unit_d={};
 var hex_l=[];
-var hex_d={};//hex的key是它的坐标列表（字面量
+var hex_d={};//key is coordinate of the hex
 var player_l=[];
 var player_d={};
 var terrain_d=scenario_dic.terrain;
@@ -1162,9 +1041,7 @@ var terrain_d=scenario_dic.terrain;
 var mat=create_hexs(scenario_dic['size'][0],scenario_dic['size'][1]);
 
 scenario_dic['hex_dic_list'].forEach(function(_hex){
-	//var hex=new Hex();
 	var hex=mat[_hex.m][_hex.n];
-	//console.log('hex',hex,'_hex',_hex)
 	hex.m=_hex.m;
 	hex.x=_hex.m;
 	hex.n=_hex.n;
@@ -1173,8 +1050,8 @@ scenario_dic['hex_dic_list'].forEach(function(_hex){
 	hex.VP=_hex.VP;
 	hex.terrain=_hex.terrain;
 	hex.capture=_hex.capture;
-	hex.unit=null;//正在占据此格的单位
-	hex.pass=null;//正在通过的单位
+	hex.unit=null;// the unit is locate in this hex
+	hex.pass=null;// the units is passing the hex
 	//var terr=terrain_d[hex.terrain];
 	/*
 	hex.els.forEach(function(el){
@@ -1189,9 +1066,8 @@ scenario_dic['hex_dic_list'].forEach(function(_hex){
 
 scenario_dic['unit_dic_list'].forEach(function(_unit){
 	var unit;
-	//console.log('_unit',_unit);
 	switch(_unit.pad){
-		case 'infantry'://剧本文件里pad指定兵牌类型，这类型怎么画由这里决定
+		case 'infantry':// pad determine unit type ... However it is motivated by TOAW3
 			unit=new Inf(_unit.id);
 			break;
 		case 'cavalry':
