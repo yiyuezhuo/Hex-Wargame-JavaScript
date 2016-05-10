@@ -1,5 +1,5 @@
 var map_el=$('#map');
-map_el.css({'position':'absolute','left':'100px','top':'25px'});
+//map_el.css({'position':'absolute','left':'100px','top':'25px'});
 
 short_edge_length=50;
 hex_k=Math.cos(Math.PI/6)*2;
@@ -630,7 +630,7 @@ function Phase_box(){
 }
 function Toolbox(){
 	this.el=$('#toolbox');
-	this.el.css({'z-index':20,position:'fixed','background-color': 'rgb(250, 250, 250)'});
+	//this.el.css({'z-index':20,position:'fixed','background-color': 'rgb(250, 250, 250)'});
 	var next_phase_a=$('#next_phase_a');
 	next_phase_a.click(phase_box.next_phase);
 	this.show_widget=$('#turn_state');
@@ -647,7 +647,7 @@ function Toolbox(){
 	this.combat_box.hide();
 	this.chase_a.hide();
 	this.AI_run_a.click(AI_run);
-	this.el.css({width:'100px'});
+	//this.el.css({width:'100px'});
 	this.description_name=$('#description_name');
 	this.description_author=$('#description_author');
 	this.description_name.html(scenario_dic.setting.name);
@@ -657,7 +657,7 @@ function News_box(){
 	this.el=$('#news_box');
 	this.news_text=$('#news_text');
 	this.news_exit_a=$('#news_exit_a');
-	this.el.css({'position':'fixed','z-index':15,'background-color':'rgb(0, 0, 50)',left:'200px',color:'rgb(255,255,255)'});
+	//this.el.css({'position':'fixed','z-index':15,'background-color':'rgb(0, 0, 50)',left:'200px',color:'rgb(255,255,255)'});
 	var that=this;
 	this.write=function(text){
 		this.news_text.html(this.news_text.html()+text);

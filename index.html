@@ -1,54 +1,54 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-
-<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-<script src="jquery/jquery.js"></script>
-<style>
-	.highlight {background:#E00;z-index:1}
-	.unhighlight {background:#000;}
-</style>
-<link  rel="stylesheet" type="text/css" href="unit.css">
-<link  rel="stylesheet" type="text/css" href="hex.css">
-
-
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <link  rel="stylesheet" type="text/css" href="css/common.css">
+  <link  rel="stylesheet" type="text/css" href="css/unit.css">
+  <link  rel="stylesheet" type="text/css" href="css/hex.css">
 </head>
 <body>
-<div id="map"></div>
-<div id="toolbox">
-	Hex based Wargame<br>
-	by yiyuezhuo<br><br>
-	<div id="description">
-	scenario:<br>
-	<div id="description_name"></div><br>
-	<div id="description_author"></div><br>
-	</div>
-	<p id='turn_state'>turn_state</p>
-	<a id='next_phase_a' style='font-weight:bold'>next phase</a><br><br><br>
-	<a id='AI_run_a' style='font-weight:bold'>AI run</a>
-	<div id='combat_box'>
-		<a id='do_it_a' style='color:red;font-weight:bold'>do it!</a><br><br>
-		<a id='reset_a' style='font-weight:bold'>reset combat</a><br><br>
-		<a id='chase_a' style='font-weight:bold'>stop chase</a>
-		<div id='battle_odds'>
-			<div id='battle_odds_attack'></div>
-			<hr>
-			<div id='battle_odds_defence'></div>
-		</div>
-	</div>
-</div>
-<div id="news_box">
-	<p>News box</p>
-	<div id="news_text"></div><br>
-	<a id="news_exit_a" style='font-weight:bold'>exit</a>
-</div>
+  <div id="map"></div>
+  <div id="toolbox">
+    <h1>
+    Hex based Wargame
+    </h1>
+    <h2>
+    by yiyuezhuo
+    </h2>
+    <a href="https://github.com/yiyuezhuo/Hex-Wargame-JavaScript" target="_Blank">
+    developer
+    </a>
+    <div id="description">
+      <p>scenario:</p>
+      <div id="description_name"></div><br>
+      <div id="description_author"></div><br>
+    </div>
+    <p id='turn_state'>turn_state</p>
+    <button id='next_phase_a'>next phase</button>
+    <button id='AI_run_a'>AI run</button>
 
-<script src="output.js"></script>
-<script src="AI.js"></script>
-<script src="event.js"></script>
-<script src="logic.js"></script>
-<script src="combat.js"></script>
-
-
+    <div id='combat_box'>
+      <button id='do_it_a'>do it!</button>
+      <button id='reset_a'>reset combat</button>
+      <button id='chase_a'>stop chase</button>
+      <div id='battle_odds'>
+        <div id='battle_odds_attack'></div>
+        <hr>
+        <div id='battle_odds_defence'></div>
+      </div>
+    </div>
+  </div>
+  <div id="news_box">
+    <p>News box</p>
+    <div id="news_text"></div><br>
+    <button id="news_exit_a">exit</button>
+  </div>
+  
+  <script src="js/jquery/jquery.js"></script>
+  <script src="scenario/output.js"></script>
+  <script src="js/AI.js"></script>
+  <script src="js/event.js"></script>
+  <script src="js/logic.js"></script>
+  <script src="js/combat.js"></script>
 </body>
 </html>
