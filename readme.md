@@ -8,7 +8,7 @@ Code is cheap ,show me the image:
 
 ![Alt image](/preview/p.gif)
 
-<a href="http://yiyuezhuo.github.io/games/project4/index.html">play it online(GitHub page)</a>
+<a href="http://yiyuezhuo.github.io/games/Hex-Wargame-JavaScript/index.html">play it online(GitHub page)</a>
 
 or you can clone this repo and open `index.html` file to enjoy it.
 
