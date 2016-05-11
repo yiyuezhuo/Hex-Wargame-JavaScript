@@ -8,6 +8,10 @@ attach_edge=short_edge_length*1.5;
 default_hex_type='tip';
 counter_x=48;
 counter_y=48;
+
+var painter=domplot.Painter();
+
+
 function all(l){
 	return l.reduce(function(x,y){return x&&y});
 }
@@ -84,29 +88,7 @@ function other(l,atom){
 		}
 	}
 }
-random=(function(){
-	module={};
-	module.random=Math.random;
-	module.choice=function(list){
-		var index=int(Math.random()*list.length);
-		return list[index];
-	};
-	module.shuffle=function(list){//
-		var list_ing=list.slice();
-		console.log('list_ing',list_ing);
-		var list_build=[];
-		while(list_ing.length>0){
-			var index=int(Math.random()*list_ing.length);
-			list_build.push(list_ing[index]);
-			list_ing.splice(index,1);
-		}
-		for (var i=0;i<list.length;i++){
-			list[i]=list_build[i];
-		}
-		console.log('list_build',list_build);
-	}
-	return module;
-})();
+
 function sum(l){
 	return l.reduce(function(x,y){return x+y});
 }
@@ -114,168 +96,24 @@ function sum(l){
 function distance(x1,y1,x2,y2){
 	return Math.sqrt(Math.pow(x1-x2,2)+Math.pow(y1-y2,2));
 }
-function hex_distance(n1,m1,n2,m2){
-	//calulate the distance between two hex
-	
-	var y1=-n1;
-	var x1=m1-int(n1/2);
-	var y2=-n2;
-	var x2=m2-int(n2/2);
-	var y=y2-y1;
-	var x=x2-x1;
-	if (x*y<=0){
-		return Math.abs(x)+Math.abs(y);
-	}
-	else{
-		return Math.abs(x)+Math.abs(y)-Math.min(Math.abs(x),Math.abs(y));
-	}
+
+function hex_distance (n1,m1,n2,m2) {
+  //calulate the distance between two hex
+  var y1,x1,y2,x2,x,y;
+  
+  y1 = -n1;
+  x1 = m1-Math.floor(n1/2);
+  y2 = -n2;
+  x2 = m2-Math.floor(n2/2);
+  y  = y2-y1;
+  x  = x2-x1;
+  
+  if (x*y <= 0){
+    return Math.abs(x)+Math.abs(y);
+  }
+  return Math.abs(x)+Math.abs(y)-Math.min(Math.abs(x),Math.abs(y));
 }
 
-function draw_hex(left,top,type){
-	// hard code version
-	var three;
-	if (type==='tip'){
-		three=[0,60,120];
-	}
-	else if (type==='lie'){
-		three=[90,150,210];
-	}
-	var els=[]
-	three.forEach(function(degree){
-		var base=$('<div></div>');
-		base.css({width:long_edge_length,height:short_edge_length,
-				position:'absolute',transform:"rotate("+degree+"deg)",left:left+'px',top:top+'px'});
-		base.appendTo(map_el);	
-		els.push(base);
-	})
-	return els;
-}
-function draw_hex2(left,top,type){
-	// css version
-	var root=$('<div></div>');
-	root.addClass('hex');
-	root.css({top:top-25,left:left,position:'absolute'});
-	root.appendTo(map_el);
-	['head','center','tail'].forEach(function(cname){
-		var c=$("<div></div>");
-		c.addClass(cname);
-		c.appendTo(root);
-	});
-	return root;
-}
-
-
-function attach_hex(left,top){
-	var base=$('<div></div>');
-	var diff_left=short_edge_length*Math.cos(Math.PI/6)-attach_edge/2;
-	var diff_top=(attach_edge-short_edge_length)/2;
-	base.css({width:attach_edge,height:attach_edge,position:'absolute',left:left+diff_left+'px',top:top-diff_top+'px'});
-	base.appendTo(map_el);	
-	return base;
-}
-
-function create_hexs(m,n){
-	//test function
-	var i,j;
-	var mat=[];
-	var diff_i,diff_j,diff_k;
-	for (i=0;i<m;i++){
-		var line=[];
-		for(j=0;j<n;j++){
-			diff_i=short_edge_length*Math.sin(Math.PI/6)+short_edge_length;
-			diff_j=short_edge_length*Math.cos(Math.PI/6)*2;
-			if ((i%2)===1){
-				diff_k=short_edge_length*Math.cos(Math.PI/6);
-			}
-			else{
-				diff_k=0;
-			}
-			line.push(new Hex(i,j,j*diff_j+diff_k,i*diff_i));
-		}
-		mat.push(line);
-	}
-	return mat;
-}
-function create_bound(left,top){
-	// create bound around hex
-	var L=short_edge_length;
-	var sin=Math.sin(Math.PI/6);
-	var cos=Math.cos(Math.PI/6);
-	var p1=[left-short_edge_length/2,top+short_edge_length/2];
-	var p2=[left+L*cos/2-L/2,top+L+L*sin/2];
-	var p3=[left+L*cos*1.5-L/2,top+L+L*sin/2];
-	var p4=[left+L*cos*2-L/2,top+L/2];
-	var p5=[left+L*cos*1.5-L/2,top-L*sin/2];
-	var p6=[left+L*cos/2-L/2,top-L*sin/2];
-	var degrees=[90,30,150,90,30,150];
-	var pl=[p1,p2,p3,p4,p5,p6];
-	var ll=[];
-	for(var i=0;i<6;i++){
-		var degree=degrees[i];
-		var line=$("<div class='line' style='left: "+(pl[i][0])+"px; top: "+(pl[i][1])+"px;'></div>");
-		line.css({width:L,height:3,position:"absolute",transform:"rotate("+degree+"deg)"})//,"background-color":"rgb(0,0,0)"});
-		line.addClass('unhighlight');
-		line.appendTo(map_el);
-		ll.push(line);
-	}
-	return ll;
-}
-function random_color(){
-	var band=[];
-	for(var i=0;i<3;i++){
-		band.push(155+int(random.random()*100));
-	}
-	return band;
-}
-function draw_counter(){
-	var box=$('<div></div>');
-	box.css({width:counter_x,height:counter_y,position:"absolute",'z-index':1,'user-select':'none'});
-	box.attr({'class':'box'})
-	var size=$('<div></div>');
-	size.css({left:0,top:0,width:counter_x,position:"absolute",'font-size':'10%','text-align':'center'});
-	size.attr({'class':'size'})
-	size.html('XX');
-	size.appendTo(box);
-	var pad=$('<div></div>');
-	pad.css({width:25,height:17,position:"absolute",left:9,top:14});
-	pad.attr({'class':'pad'})
-	pad.appendTo(box);
-	var l0=$('<div></div>');
-	l0.css({left:6,top:34,position:"absolute",'font-size':'10%'});
-	l0.attr({'class':'l0'});
-	var l1=$('<div></div>');
-	l1.css({left:18,top:34,position:"absolute",'font-size':'10%'});
-	l1.attr({'class':'l1'});
-	var l2=$('<div></div>');
-	l2.css({left:36,top:34,position:"absolute",'font-size':'10%'});
-	l2.attr({'class':'l2'});
-	l0.appendTo(box);l1.appendTo(box);l2.appendTo(box);
-	return {box:box,size:size,pad:pad,l0:l0,l1:l1,l2:l2};
-}
-function draw_line(x1,y1,x2,y2){
-		var dx=x2-x1;
-		var dy=y2-y1;
-		var dd=Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2));
-		var cos_n=dx/dd;
-		var sin_n=dy/dd;
-		var pi=Math.PI;
-		if (dy>0){
-			var cos_c=Math.acos(cos_n);
-			var sin_c=Math.asin(sin_n);
-		}
-		else{
-			var cos_c=pi+pi-Math.acos(cos_n);
-			var sin_c=pi+pi-Math.asin(sin_n)+pi;
-		}
-		var cos_d=cos_c/(2*pi)*360;
-		var sin_d=sin_c/(2*pi)*360;
-		var degree=cos_d;
-		var x3=(x1+x2)/2-dd/2;
-		var y3=(y1+y2)/2;
-		var line=$("<div class='line' style='left: "+(x3)+"px; top: "+(y3)+"px;'></div>");
-		line.css({width:dd,height:2,position:"absolute",transform:"rotate("+degree+"deg)"});
-		return line;
-}
 
 function Unit_click_box(){
 	// deal event about player unit click 
@@ -705,56 +543,8 @@ function Player(side_id){
 	}
 	
 }
-function Hex(x,y,left,top){
-	this.x=x;
-	this.y=y;
-	this.m=x;
-	this.n=y;// hell name for compatibel
-	this.left=left;
-	this.top=top;
-	this.els=draw_hex2(left,top,default_hex_type);
-	this.el=attach_hex(left,top);
-	this.bound=create_bound(left,top);
-	this.is_highlight=false;
-	that=this;
-	this.el.click(function(){
-		hex_click_box.hex_click(that);
-	});
-	this.set_color=function(band){		
-		this.els.forEach(function(part){
-			part.css({'background-color':'rgb('+band[0]+','+band[1]+','+band[2]+')'})
-		})
-	}
-	this.highlight=function(){
-		this.bound.forEach(function(bound){
-			bound.removeClass('unhighlight');
-			bound.addClass('highlight');
-			that.is_highlight=true;
-		})
-	}
-	this.de_highlight=function(){
-		this.bound.forEach(function(bound){
-			bound.removeClass('highlight');
-			bound.addClass('unhighlight');
-			that.is_highlight=false;
-		})
-	}
-	var tran;
-	if (this.m%2===0){
-		tran=[[-1,-1],[-1,0],[0,1],[1,0],[1,-1],[0,-1]];
-	}
-	else{
-		tran=[[-1, 0],[-1,1],[0,1],[1,1],[1, 0],[0,-1]];
-	}
-	var that=this;
-	nei_a=tran.map(function(mn){
-		return [ mn[0]+that.m,mn[1]+that.n];
-	});
-	this.nei=nei_a.filter(function(nei){
-		return 0<=nei[0] && nei[0]<scenario_dic['size'][0] && 0<=nei[1] && nei[1]<scenario_dic['size'][1];
-	});
-	
-}
+
+
 function set_color(el,rgb,key){
 	if (key===undefined){
 		key='color';
@@ -764,10 +554,12 @@ function set_color(el,rgb,key){
 	dic[key]='rgb('+r+','+g+','+b+')';
 	el.css(dic);
 }
+
+
 function Unit(id){
 	var that=this;
 	this.id=id;
-	this.els=draw_counter();
+	this.els=painter.draw_counter();
 	this.el=this.els.box;
 	this.combat=0;
 	this.movement=0;
@@ -791,23 +583,31 @@ function Unit(id){
 	}
 	this.set_hex=function(m,n){
 		this.hex_move(this.m,this.n,m,n);
-		var left=mat[m][n].left+short_edge_length*Math.cos(Math.PI/6)-counter_x/2;
-		var top=mat[m][n].top+short_edge_length/2-counter_y/2;
+    var mat_mn  = painter.scale(m,n);
+		var left    = mat_mn.left+short_edge_length*Math.cos(Math.PI/6)-counter_x/2;
+		var top     = mat_mn.top+short_edge_length/2-counter_y/2;
 		this.el.css({left:left,top:top});
-		this.m=m;
-		this.n=n;
+		this.m      = m;
+		this.n      = n;
 	}
 	this.move_to=function(m,n,duration,pattern,mode,pass){
 		if (pass===undefined){
 			this.hex_move(this.m,this.n,m,n);
 		}
-		var left=mat[m][n].left+short_edge_length*Math.cos(Math.PI/6)-counter_x/2;
-		var top=mat[m][n].top+short_edge_length/2-counter_y/2;
+    var mat_mn  = painter.scale(m,n);
+		var left=mat_mn.left+short_edge_length*Math.cos(Math.PI/6)-counter_x/2;
+		var top=mat_mn.top+short_edge_length/2-counter_y/2;
 		if (mode==='no_focus'){
 			this.el.animate({left:left,top:top},duration,pattern);
 		}
 		else{
-			this.el.animate({left:left,top:top},duration,pattern,function(){console.log('wuyu');unit_click_box.reset_focus();});
+			this.el.animate({left:left,top:top},
+                      duration,
+                      pattern,
+                      function(){
+                        console.log('wuyu');
+                        unit_click_box.reset_focus();
+                      });
 		}
 		this.m=m;
 		this.n=n;
@@ -951,8 +751,8 @@ function Inf(id){
 	Unit.call(this,id);
 	var pad=this.els.pad;
 	// following code paint a cross represent infantry in NATO military note system
-	var line1=draw_line(0,0,25,16);
-	var line2=draw_line(0,16,25,0);
+	var line1=painter.draw_line(0,0,25,16);
+	var line2=painter.draw_line(0,16,25,0);
 	line1.addClass('line');
 	line2.addClass('line');
 	line1.appendTo(pad);
@@ -962,7 +762,7 @@ function Inf(id){
 function Cav(id){
 	Unit.call(this,id);
 	var pad=this.els.pad;
-	var line2=draw_line(0,16,25,0);
+	var line2=painter.draw_line(0,16,25,0);
 	line2.addClass('line');
 	line2.appendTo(pad);
 	this.els['line']=[line2];
@@ -970,8 +770,8 @@ function Cav(id){
 function HQ(id){
 	Unit.call(this,id);
 	var pad=this.els.pad;
-	var line1=draw_line(0,0,13,0);
-	var line2=draw_line(13,8,25,8);
+	var line1=painter.draw_line(0,0,13,0);
+	var line2=painter.draw_line(13,8,25,8);
 	line1.css({'height':10});
 	line2.css({'height':10});
 	line1.addClass('line');
@@ -1012,7 +812,7 @@ function Horse_Artillery(id){
 	var hole=$('<div></div>');
 	hole.css({width:7,height:7,'border-radius': '7px',left:'9px',top:'5px',position:'absolute'});
 	hole.appendTo(pad);
-	var line2=draw_line(0,16,25,0);
+	var line2=painter.draw_line(0,16,25,0);
 	line2.appendTo(pad);
 	this.els['line']=[hole,line2];
 }
@@ -1038,28 +838,80 @@ var player_l=[];
 var player_d={};
 var terrain_d=scenario_dic.terrain;
 
-var mat=create_hexs(scenario_dic['size'][0],scenario_dic['size'][1]);
+//var mat=create_hexs(scenario_dic['size'][0],scenario_dic['size'][1]);
+
+var clickEvent=designPattern.event();
+var highlightEvent=designPattern.event();
+var unhighlightEvent=designPattern.event();
+
+function Hex(_hex){
+	this.m=_hex.m;
+	this.x=_hex.m;
+	this.n=_hex.n;
+	this.y=_hex.n;
+	this.label=_hex.label;
+	this.VP=_hex.VP;
+	this.terrain=_hex.terrain;
+	this.capture=_hex.capture;
+	this.unit=null;// the unit is locate in this hex
+	this.pass=null;// the units is passing the hex
+  this.nei=this.cal_nei();
+}
+Hex.prototype.highlight=function(){
+  highlightEvent.trigger(this.m,this.n);
+}
+Hex.prototype.de_highlight=function(){
+  unhighlightEvent.trigger(this.m,this.n);
+}
+Hex.prototype.cal_nei=function(){
+  var tran,
+      that=this;
+	if (this.m%2===0){
+		tran=[[-1,-1],[-1,0],[0,1],[1,0],[1,-1],[0,-1]];
+	}
+	else{
+		tran=[[-1, 0],[-1,1],[0,1],[1,1],[1, 0],[0,-1]];
+	}
+	nei_a=tran.map(function(mn){
+		return [ mn[0]+that.m,mn[1]+that.n];
+	});
+	return nei_a.filter(function(nei){
+		return 0<=nei[0] 
+           && nei[0]<scenario_dic['size'][0] 
+           && 0<=nei[1] 
+           && nei[1]<scenario_dic['size'][1];
+	});
+}
+
+function create_hexs(scenario_dic){
+  var m=scenario_dic['size'][0],
+      n=scenario_dic['size'][1],
+      mat=[],
+      i;
+  for(i=0;i<m;i++){
+    mat.push(new Array(n));
+  }
+  scenario_dic['hex_dic_list'].forEach(function(_hex){
+    mat[_hex.m][_hex.n]=new Hex(_hex);
+  })
+  
+  function classMap(i,j){
+    return mat[i][j].terrain;
+  }
+  
+  domplot.Hexs(map_el,{m : m,
+                       n : n,
+                       clickEvent : clickEvent,
+                       classMap   : classMap,
+                       highlightEvent   : highlightEvent,
+                       unhighlightEvent : unhighlightEvent})
+  return mat;
+}
+
+var mat=create_hexs(scenario_dic);
 
 scenario_dic['hex_dic_list'].forEach(function(_hex){
 	var hex=mat[_hex.m][_hex.n];
-	hex.m=_hex.m;
-	hex.x=_hex.m;
-	hex.n=_hex.n;
-	hex.y=_hex.n;
-	hex.label=_hex.label;
-	hex.VP=_hex.VP;
-	hex.terrain=_hex.terrain;
-	hex.capture=_hex.capture;
-	hex.unit=null;// the unit is locate in this hex
-	hex.pass=null;// the units is passing the hex
-	//var terr=terrain_d[hex.terrain];
-	/*
-	hex.els.forEach(function(el){
-		el.addClass(_hex.terrain);
-	})
-	*/
-	hex.els.addClass(_hex.terrain);
-	
 	hex_l.push(hex);
 	hex_d[[hex.m,hex.n]]=hex;
 });
