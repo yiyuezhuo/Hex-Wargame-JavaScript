@@ -70,7 +70,7 @@ class Scenario(object):
         #if sort:
         #    self.sort_id()
         if len(self.player_list)==0:
-            print 'you need put player information,call auto_player() or assign manualy'
+            print('you need put player information,call auto_player() or assign manualy')
         unit_dic_list=[unit.to_dict() for unit in self.unit_list]
         hex_dic_list=[hexij.to_dict() for hexij in self.hex_list]
         player_dic_list=[player.to_dict() for player in self.player_list]
@@ -85,9 +85,8 @@ class Scenario(object):
     def to_javascript(self,out_name='output.js',obj_name='scenario_dic'):
         s=self.to_json()
         ss='var '+obj_name+'='+s+';'
-        f=open(out_name,'w')
-        f.write(ss)
-        f.close()
+        with open(out_name,'w') as f:
+            f.write(ss)
     def create_hexs(self,m,n):
         for i in range(m):
             for j in range(n):
@@ -173,19 +172,17 @@ class CSV_model(object):
     def load(self,root):
         self.root=root
         for reg in self.register:
-            print 'load '+reg
+            print('load '+reg)
             path=root+'\\'+reg
-            f=open(path,'rb')
+            #f=open(path,'rb')
             #self.csv[reg]=list(csv.reader(f))
-            self.csv[reg]=self.clean(list(csv.reader(f)))
-            f.close()
+            with open(path) as f:
+                self.csv[reg]=self.clean(list(csv.reader(f)))
         for reg in self.raw_register:
-            print 'load '+reg
+            print('load '+reg)
             path=root+'\\'+reg
-            f=open(path,'rb')
-            #self.csv[reg]=list(csv.reader(f))
-            self.raw[reg]=f.read()
-            f.close()
+            with open(path) as f:
+                self.raw[reg]=f.read()
     def parse_AI(self):
         # remove comment item only
         self.scenario.AI=[line for line in self.csv['AI.csv'] if line[0]!='#']
@@ -255,7 +252,7 @@ class CSV_model(object):
             self.scenario.player_list.append(player)
     def parse_CRT(self):
         CRT=self.csv['CRT.csv']
-        CRT_T=zip(*CRT)
+        CRT_T=list(zip(*CRT))
         dice=CRT_T[0]
         odds=CRT_T[1:]
         dic={odd[0]:{}  for odd in odds}
@@ -296,7 +293,7 @@ def trans(path,out_name='output.js',place=False):
     model.load(path)
     model.parse(place=place)
     model.to_javascript(out_name=out_name)
-    print 'fin'
+    print('fin')
 
 if __name__ == '__main__':
     if len(sys.argv)==1: #test
@@ -304,11 +301,11 @@ if __name__ == '__main__':
         model.load('scenario\\Battle_of_Assaye')
         model.parse(place=True)
         model.to_javascript()
-        print 'fin'
+        print('fin')
     else:
         path=sys.argv[1]
         place='place' in sys.argv
-        print 'place',place
+        print('place',place)
         trans(path,place=place)
     
         

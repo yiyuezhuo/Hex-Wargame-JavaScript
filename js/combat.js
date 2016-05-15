@@ -38,6 +38,7 @@ function result_distribution(atk,def){
 	}
 	return CRT[odds_c];
 }
+
 function result_draw(atk,def,buff){
 	if (buff===undefined){
 		buff=0;
@@ -46,16 +47,19 @@ function result_draw(atk,def,buff){
 	var point=dn+buff;
 	return result_distribution(atk,def)[point];
 }
+
 function eliminate(unit_id){
 	var unit=unit_d[unit_id];
 	unit.destroy();
 }
+
 function routed(unit_id){
 	// a unit rout from its current location to a neibor hex. If it can't ,eliminate.
 	var unit=unit_d[unit_id];
 	var loc=hex_d[[unit.m,unit.n]];
 	var ava=loc.nei.filter(function(nei_id){
-		if (hex_d[nei_id].unit===null && !(unit.zoc_map(nei_id)[unit.side])){// if the hex is null and not be threat by enemy ZOC
+		if (!(hex_d[nei_id].isStackFull()) && !(unit.zoc_map(nei_id)[unit.side])){
+      // if the hex has null space and not be threat by enemy ZOC
 			if (unit.movement>=terrain_d[hex_d[nei_id].terrain].base_cost){
 				return true;
 			}
@@ -66,15 +70,18 @@ function routed(unit_id){
 		else{
 			return false;
 		}
-	})
+	});
 	if (ava.length===0){
+    console.log('unit',unit.id,'has not space to routed so is eliminated');
 		eliminate(unit.id);
 	}
 	else{
 		var target=random.choice(ava);
 		unit.move_to(target[0],target[1],100, "linear",'no_focus');
+    console.log('unit',unit.id,'route to',target[0],target[1]);
 	}
 }
+
 function do_battle(atk_id_l,def_id_l,buff){
 	if (buff===undefined){
 		buff=0;
@@ -94,6 +101,7 @@ function do_battle(atk_id_l,def_id_l,buff){
 	result_do_list(result,atk_l,def_l);
 	return result;
 }
+
 function result_do_list(result,atk_l,def_l){
 	var dts=sum(def_l.map(function(unit){return unit.combat}));
 	switch(result){

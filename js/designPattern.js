@@ -11,7 +11,7 @@ var designPattern=(function(){
       var i
           length=callbackList.length;
       for(i=0;i<length;i++){
-        if( ! callbackList[i].apply(this,arguments) ){
+        if( callbackList[i].apply(this,arguments) ){
           break;
         }
       }
@@ -23,11 +23,13 @@ var designPattern=(function(){
             trigger   : trigger};
   }
   
+  
   /*
   function iteration(func){
     
   }
   */
+  
   
   return {event:event}
 }());

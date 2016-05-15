@@ -55,6 +55,11 @@
   margin : 3px;
 }
 
+#battle_odds p {
+  margin : 0px;
+  font-size : 60%;
+}
+
 
 #news_box {
   position         : fixed;

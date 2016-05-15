@@ -9,7 +9,7 @@
   regexp : true,  sloppy   : true,  vars      : false,
   white  : true
 */
-/*global domplot,jQuery,random */
+/*global domplot,jQuery */
 
 
 var domplot = (function ($) {  
@@ -41,14 +41,15 @@ var domplot = (function ($) {
     //   * counter_y
     //   * default_hex_type
     
-    var short_edge_length,attach_edge,counter_x,counter_y,default_hex_type;
+    var short_edge_length,attach_edge,counter_x,counter_y,default_hex_type,unit_factory;
     
     config            = config || {};
     short_edge_length = config.edge_length || 50;
     attach_edge       = short_edge_length * 1.5;
-    counter_x         = config.counter_x || 48;
-    counter_y         = config.counter_y || 48;
+    counter_x         = config.counter_x || short_edge_length * 0.96;
+    counter_y         = config.counter_y || short_edge_length * 0.96;
     default_hex_type  = config.default_hex_type || 'tip';
+    //pad_length        = config.pad_length || counter_x/2;
     
     addStyle({'.hex .head'  :
                 {'border-bottom-width' : short_edge_length/2+'px',
@@ -62,30 +63,14 @@ var domplot = (function ($) {
                 {'border-top-width'    : short_edge_length/2+'px',
                  'border-left-width'   : short_edge_length*Math.cos(Math.PI/6)+'px',
                  'border-right-width'  : short_edge_length*Math.cos(Math.PI/6)+'px'
+                },
+              '.counter'    :
+                {
+                  'width'              : counter_x+'px',
+                  'height'             : counter_y+'px',
                 }
     });
         
-    /*
-    function draw_hex(left,top,type){
-      // hard code version
-      var three,
-          els = [];
-      if (type === 'tip'){
-        three = [0,60,120];
-      }
-      else if (type === 'lie'){
-        three = [90,150,210];
-      }
-      three.forEach(function(degree){
-        var base=$('<div></div>');
-        base.css({width:long_edge_length,height:short_edge_length,
-            position:'absolute',transform:"rotate("+degree+"deg)",left:left+'px',top:top+'px'});
-        base.appendTo(map_el);	
-        els.push(base);
-      });
-      return els;
-    }
-    */
     
     function draw_hex2(left,top){
       // css version
@@ -154,54 +139,7 @@ var domplot = (function ($) {
       return ll;
     }
         
-    function draw_counter(){
-      var box,size,pad,l0,l1,l2;
-      box = $('<div></div>');
-      box.css({width     : counter_x,
-               height    : counter_y,
-               position  : "absolute",
-               'z-index' : 1,
-               'user-select':'none'
-              });
-      box.attr({'class':'box'});
-      size = $('<div></div>');
-      size.css({left     : 0,
-                top      : 0,
-                width    : counter_x,
-                position : "absolute",
-                'font-size'  :'10%',
-                'text-align' :'center'
-                });
-      size.attr({'class':'size'});
-      size.html('XX');
-      size.appendTo(box);
-      pad = $('<div></div>');
-      pad.css({width  : 25,
-               height : 17,
-               left   : 9,
-               top    : 14,
-               position : "absolute"    
-              });
-      pad.attr({'class':'pad'});
-      pad.appendTo(box);
-      l0 = $('<div></div>');
-      l0.css({left:6,top:34,position:"absolute",'font-size':'10%'});
-      l0.attr({'class':'l0'});
-      l1 = $('<div></div>');
-      l1.css({left:18,top:34,position:"absolute",'font-size':'10%'});
-      l1.attr({'class':'l1'});
-      l2 = $('<div></div>');
-      l2.css({left:36,top:34,position:"absolute",'font-size':'10%'});
-      l2.attr({'class':'l2'});
-      l0.appendTo(box);l1.appendTo(box);l2.appendTo(box);
-      return { box  : box,
-               size : size,
-               pad  : pad,
-               l0   : l0,
-               l1   : l1,
-               l2   : l2
-             };
-    }
+
     
     function draw_line(x1,y1,x2,y2){
         var dx = x2-x1,
@@ -267,6 +205,14 @@ var domplot = (function ($) {
       return {left:left,top:top};
     }
     
+    function locUnit(m,n){
+      var mat_mn,left,top;
+      mat_mn  = scale(m,n);
+      left=mat_mn.left+short_edge_length*Math.cos(Math.PI/6)-counter_x/2;
+      top=mat_mn.top+short_edge_length/2-counter_y/2;
+      return {left:left,top:top};
+    }
+    
     function create_hexs(m,n){
       //test function
       var i,j,
@@ -285,13 +231,175 @@ var domplot = (function ($) {
       return mat;
     }
     
+    
+    unit_factory=(function(){
+      
+      var padMap;
+      
+      function draw_counter(){
+        var box,size,pad,l0,l1,l2;
+          box = $('<div></div>');
+          box.attr({'class':'counter'});
+          size = $('<div></div>');
+          size.attr({'class':'size'});
+          //size.html('XX');
+          size.appendTo(box);
+          pad = $('<div></div>');
+          pad.attr({'class':'pad'});
+          pad.appendTo(box);
+          l0 = $('<div></div>');
+          l0.attr({'class':'l0'});
+          l1 = $('<div></div>');
+          l1.attr({'class':'l1'});
+          l2 = $('<div></div>');
+          l2.attr({'class':'l2'});
+          
+          l0.appendTo(box);
+          l1.appendTo(box);
+          l2.appendTo(box);
+          return { box  : box,
+                   size : size,
+                   pad  : pad,
+                   l0   : l0,
+                   l1   : l1,
+                   l2   : l2
+                 };
+      }
+      
+      function Unit(){
+        this.els=draw_counter();
+        this.el=this.els.box;
+      }
+
+      
+      padMap={
+         'infantry' : function(){
+          var pad,line1,line2;
+          
+          Unit.call(this);
+          
+          pad=this.els.pad;
+          // following code paint a cross represent infantry in NATO military note system
+          line1=draw_line(0,0,25,16);
+          line2=draw_line(0,16,25,0);
+          line1.addClass('line');
+          line2.addClass('line');
+          line1.appendTo(pad);
+          line2.appendTo(pad);
+          this.els.line=[line1,line2];
+        },
+        
+        'cavalry' : function(){
+          var pad,line2;
+          
+          Unit.call(this);
+          
+          pad=this.els.pad;
+          line2=draw_line(0,16,25,0);
+          line2.addClass('line');
+          line2.appendTo(pad);
+          this.els.line=[line2];
+        },
+        
+        'HQ' : function(){
+          var pad,line1,line2;
+          
+          Unit.call(this);
+          
+          pad=this.els.pad;
+          line1=draw_line(0,0,13,0);
+          line2=draw_line(13,8,25,8);
+          line1.css({'height':10});
+          line2.css({'height':10});
+          line1.addClass('line');
+          line2.addClass('line');
+          line1.appendTo(pad);
+          line2.appendTo(pad);
+          this.els.line=[line1,line2];
+        },
+        
+        'Artillery' : function(){
+          var pad,hole;
+          
+          Unit.call(this);
+          
+          pad=this.els.pad;
+          hole=$('<div></div>');
+          hole.css({width   : 7,
+                    height  : 7,
+                    'border-radius' : '7px',
+                    left  : '9px',
+                    top   : '5px',
+                    position  : 'absolute'});
+          hole.addClass('line');
+          hole.appendTo(pad);
+          this.els.line=[hole];
+        },
+        
+        'Panzer' : function(){
+          var pad,hole;
+          
+          Unit.call(this);
+          
+          pad=this.els.pad;
+          hole=$('<div></div>');
+          hole.css({width:14,
+                    height:8,
+                    'border-radius': '5px/5px',
+                    left:'4px',
+                    top:'3px',
+                    position:'absolute'});
+          hole.appendTo(pad);
+          this.els.line=[hole];
+          // rewrite set_pad_line_color method because it is not fit ordinary plot model
+          this.set_pad_line_color=function(rgb){
+            var r=rgb[0],
+                g=rgb[1],
+                b=rgb[2],
+                rgbs='rgb('+r+','+g+','+b+')';
+            this.els.pad.addClass('pad');
+            this.els.line.forEach(function(line){
+              line.css({'background-color':'transparent',
+                        border:'2px '+rgbs+' solid'});
+            });
+          };
+        },
+        
+        'Horse Artillery' : function(){
+          var pad,hole,line2;
+          
+          Unit.call(this);
+          
+          pad=this.els.pad;
+          hole=$('<div></div>');
+          hole.css({width:7,
+                    height:7,
+                    'border-radius': '7px',
+                    left:'9px',
+                    top:'5px',
+                    position:'absolute'});
+          hole.appendTo(pad);
+          line2=draw_line(0,16,25,0);
+          line2.appendTo(pad);
+          this.els.line=[hole,line2];
+        }
+      };
+      
+      return function (pad){
+        var unitDom=new padMap[pad]();
+        unitDom.el.appendTo(map_el);
+        return unitDom;
+      };
+    }());
+        
     return {
       draw_line    : draw_line,
       create_bound : create_bound,
-      draw_counter : draw_counter,
       create_hexs  : create_hexs,
       draw_hex2    : draw_hex2,
-      scale        : scale
+      scale        : scale,
+      unit_factory : unit_factory,
+      locUnit      : locUnit
     };
   }
   
@@ -299,7 +407,6 @@ var domplot = (function ($) {
 		that.bound.forEach(function(bound){
 			bound.removeClass('unhighlight');
 			bound.addClass('highlight');
-			that.is_highlight=true;
 		});
 	}
   
@@ -307,27 +414,30 @@ var domplot = (function ($) {
 		that.bound.forEach(function(bound){
 			bound.removeClass('highlight');
 			bound.addClass('unhighlight');
-			that.is_highlight=false;
 		});
 	}
 
   
-  function Hexs(dom_el,setting){
-    // Hexs take a map_el and a dictionary setting it can has these attribute:
+  function Hexs(setting){
+    // Hexs take a dom_el and a dictionary setting it can has these attribute:
+    //   * painter - if not include this, will create new one use config attribute
+    //   * dom_el - if painter is not given, dom_el will be used to create new one.
+    //   * config    - a map to config hex grid shape be used when painter is not given
+    //
     //   * m - rows
     //   * n - cols
-    //   * config    - a map to config hex grid shape
     //   * clickEvent     - event new object will trigger it when their dom recieved DOM event.
     //   * classMap  - (i,j) -> a class 
     //   * highlightEvent - event will be register Grid method and fire it will highlight something
     //   * unhighlightEvent - as above.
+    
     //// Event should has register function to hold a function this object assign to it.
     var i,j,hex,klass,m,n,painter,hexs;
 
     setting = setting   || {};
     m       = setting.m || 20;
     n       = setting.n || 20;
-    painter = Painter(dom_el,setting.config);
+    painter = setting.painter || Painter(setting.dom_el,setting.config);
     hexs    = painter.create_hexs(setting.m || 20, setting.n || 20);
         
     function bindClick(hex,i,j){
@@ -343,7 +453,6 @@ var domplot = (function ($) {
           bindClick(hex,i,j);
         }
       }
-
     }
     
     if (setting.classMap){
@@ -363,15 +472,258 @@ var domplot = (function ($) {
     }
     
     if(setting.unhighlightEvent){
-      setting.highlightEvent.register(function(i,j){
+      setting.unhighlightEvent.register(function(i,j){
         de_highlight(hexs[i][j]);
       });
     }
     
   }
   
+  function deco(that,config){
+    if (config.l0){
+      that.els.l0.html(config.l0);
+    }
+    if (config.l1){
+      that.els.l1.html(config.l1);
+    }
+    if (config.l2){
+      that.els.l2.html(config.l2);
+    }
+    if (config.size){
+      that.els.size.html(config.size);
+    }
+    if (config.color && ! that.el.hasClass(config.color)){
+      that.el.addClass(config.color);
+    }
+  }
+  
+  
+  
+  function Counters(setting){
+    // Counters take a dom_el and a dictionary setting it can has these attribute:
+    //   * painter - 
+    //   * dom_el - if painter is not given, dom_el will be used to create new one.
+    //   * config    - a map to config hex grid shape be used when painter is not given
+    //
+    //   * n - count size
+    //   * unitMap - function, return dicts give information about units 
+    //     * pad - indicate what pad unit hold
+    //     * l0,l1,l2,size - number will be display
+    //     * color - french, kingdom etc...
+    //   * clickEvent     - trigger and send id of object
+    //   * moveEvent  - id,m,n,callback
+    //   * setEvent   - id,m,n
+    //   * updateEvent -unitMap
+    //   * diedEvent - id
+    //   * rollStackEvent - m,n
+    //   * duration  
+    //   * pattern
+    //   * stackSize - 1-3 if 1 or undefined then use un-stack mode 
+    //                      else add stack class state and change behavior on set and move_to
+    //// Event should has register,trigger method to hold a function this object assign to it.
+    
+    var unitMap,painter,domList,i,unitList,duration,pattern,
+        stackSize,is_used_stack,unstackHandler,stackHandler,handler;
+    
+    setting       = setting || {};
+    unitMap       = setting.unitMap;
+    painter       = setting.painter || Painter(setting.dom_el,setting.config);
+    unitList      = [];
+    duration      = setting.duration || 100;
+    pattern       = setting.pattern || 'linear';
+    stackSize     = setting.stackSize;
+    is_used_stack = stackSize && stackSize>=2;
+    
+    // Begin handler swicher
+    
+    unstackHandler = {
+      clickEvent : function(i){
+        return function(){
+          setting.clickEvent.trigger(i);
+        };
+      },
+      unitInit : function(_unit){
+        var unit=painter.unit_factory(_unit.pad);
+        deco(unit,_unit);
+        return unit;
+      },
+      moveEvent : function(id,i,j,callback){
+        var el=domList[id].el,
+            loc=painter.locUnit(i,j);
+            el.animate({left : loc.left,
+                        top  : loc.top},
+                        duration,pattern,callback);
+      },
+      setEvent : function(id,i,j){
+        var el=domList[id].el,
+            loc=painter.locUnit(i,j);
+            el.css({left  : loc.left,
+                    top   : loc.top});
+      },
+      updateEvent : function(unitMap){
+        domList.forEach(function(dom,i){
+          deco(dom,unitMap(i));
+        });
+      },
+      diedEvent:function(id){
+        domList[id].el.css({display:'none'});
+      }         
+    };
+    
+    stackHandler=(function(){
+      var stackMap={},// to record who units stand on hex, a empty list default for a key (i,j)
+          stackClassMap={
+            0 : 'stack1',
+            1 : 'stack2',
+            2 : 'stack3'
+          };
+      
+      // Begin utility function 
+      function removeStack(id,i,j){
+        var newStack=[],
+            index=0;
+        stackMap[[i,j]].forEach(function(iid,i){
+          if(id!==iid){
+            newStack[index]=iid;
+            domList[iid].el.removeClass(stackClassMap[i]);
+            domList[iid].el.addClass(stackClassMap[index]);
+            index+=1;
+          }
+          else{
+            domList[iid].el.removeClass(stackClassMap[i]);
+          }
+        });
+        stackMap[[i,j]]=newStack;
+      }
+      
+      function pushStack(id,i,j){
+        if (stackMap[[i,j]]===undefined){
+          stackMap[[i,j]]=[];
+        }
+        domList[id].el.addClass(stackClassMap[stackMap[[i,j]].length]);
+        stackMap[[i,j]].push(id);
+      }
+      
+      function topStack(id){
+        var unit=domList[id];
+        removeStack(id,unit.m,unit.n);
+        pushStack(id,unit.m,unit.n);
+      }
+      
+      function rollStack(m,n){
+        topStack(stackMap[[m,n]][0]);
+      }
+      // End utility function
+      
+      function clickEvent(i){
+        return function(){
+          topStack(i);
+          setting.clickEvent.trigger(i);
+        };
+      }
+      
+      
+      function unitInit(_unit){
+        var unit=unstackHandler.unitInit(_unit);
+        unit.m=undefined;
+        unit.n=undefined;
+        return unit;
+      }
+      
+      function moveEvent(id,i,j,callback){
+        var unit=domList[id],
+            r;
+        if(unit.m !== undefined && unit.n !== undefined ){
+          removeStack(id,unit.m,unit.n);
+        }
+        unit.m=i;
+        unit.n=j;
+        r = unstackHandler.moveEvent(id,i,j,callback);
+        pushStack(id,i,j);
+        return r;
+      }
+      
+      function setEvent(id,i,j){
+        var unit=domList[id],r;
+        if(unit.m !== undefined && unit.n !== undefined ){
+          removeStack(id,unit.m,unit.n);
+        }
+        unit.m=i;
+        unit.n=j;
+        r = unstackHandler.setEvent(id,i,j);
+        pushStack(id,i,j);
+        return r;
+      }
+      
+      function updateEvent(unitMap){
+        return unstackHandler.updateEvent(unitMap);
+      }
+      
+      function diedEvent(id){
+        var unit=domList[id];
+        unstackHandler.diedEvent(id);
+        removeStack(id,unit.m,unit.n);
+      }
+      
+      function rollStackEvent(m,n){
+        rollStack(m,n);
+      }
+      
+      
+      return {
+        clickEvent : clickEvent,
+        unitInit : unitInit,
+        moveEvent : moveEvent,
+        setEvent  : setEvent,
+        updateEvent : updateEvent,
+        diedEvent : diedEvent,
+        rollStackEvent : rollStackEvent
+      };
+    }());
+    
+    handler = is_used_stack ? stackHandler : unstackHandler;
+    
+    // End handler swicher
+    
+    for(i = 0; i < setting.n; i++){
+      unitList.push(unitMap(i));
+    }
+    
+    domList=unitList.map(handler.unitInit);
+    
+    if (setting.clickEvent){
+      domList.forEach(function(dom,i){
+        dom.el.click(handler.clickEvent(i));
+      });
+    }
+    
+    if(setting.moveEvent){
+      setting.moveEvent.register(handler.moveEvent);
+    }
+    
+    if(setting.setEvent){
+      setting.setEvent.register(handler.setEvent);
+    }
+    
+    if(setting.updateEvent){
+      setting.updateEvent.register(handler.updateEvent);
+    }
+    
+    if(setting.diedEvent){
+      setting.diedEvent.register(handler.diedEvent);
+    }
+    
+    if(setting.rollStackEvent){
+      setting.rollStackEvent.register(handler.rollStackEvent);
+    }
+
+  }
+  
+  
+  
   return {
-    Painter : Painter,
-    Hexs    : Hexs
+    Painter  : Painter,
+    Hexs     : Hexs,
+    Counters : Counters
   };
 }(jQuery));
