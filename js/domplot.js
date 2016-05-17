@@ -166,7 +166,7 @@ var domplot = (function ($) {
         y3      = (y1+y2)/2;
         line = $("<div class='line' style='left: "+x3+"px; top: "+y3+"px;'></div>");
         line.css({width     : dd,
-                  height    : 2,
+                  //height    : 2,
                   position  : "absolute",
                   transform : "rotate("+degree+"deg)"
                  }
@@ -280,8 +280,8 @@ var domplot = (function ($) {
           
           pad=this.els.pad;
           // following code paint a cross represent infantry in NATO military note system
-          line1=draw_line(0,0,25,16);
-          line2=draw_line(0,16,25,0);
+          line1=draw_line(0,0,26,16);
+          line2=draw_line(0,16,26,0);
           line1.addClass('line');
           line2.addClass('line');
           line1.appendTo(pad);
@@ -325,11 +325,13 @@ var domplot = (function ($) {
           
           pad=this.els.pad;
           hole=$('<div></div>');
-          hole.css({width   : 7,
-                    height  : 7,
-                    'border-radius' : '7px',
-                    left  : '9px',
-                    top   : '5px',
+          hole.css({width   : 5,
+                    height  : 5,
+                    'border-radius' : '6px',
+                    left   : '40%',
+                    right  : '40%',
+                    top    : '40%',
+                    bottom : '40%',
                     position  : 'absolute'});
           hole.addClass('line');
           hole.appendTo(pad);
@@ -432,13 +434,14 @@ var domplot = (function ($) {
     //   * unhighlightEvent - as above.
     
     //// Event should has register function to hold a function this object assign to it.
-    var i,j,hex,klass,m,n,painter,hexs;
+    var i,j,hex,klass,m,n,painter,hexs,classCache;
 
     setting = setting   || {};
     m       = setting.m || 20;
     n       = setting.n || 20;
     painter = setting.painter || Painter(setting.dom_el,setting.config);
     hexs    = painter.create_hexs(setting.m || 20, setting.n || 20);
+    classCache = {};
         
     function bindClick(hex,i,j){
         hex.el.click(function(){
@@ -461,6 +464,7 @@ var domplot = (function ($) {
           hex=hexs[i][j];
           klass=setting.classMap(i,j);
           hex.els.addClass(klass);
+          classCache[[i,j]]=klass;
         }
       }
     }
@@ -474,6 +478,16 @@ var domplot = (function ($) {
     if(setting.unhighlightEvent){
       setting.unhighlightEvent.register(function(i,j){
         de_highlight(hexs[i][j]);
+      });
+    }
+    
+    if(setting.classUpdateEvent){
+      setting.classUpdateEvent.register(function(i,j,klass){
+        var hex=hexs[i][j],
+            oldClass=classCache[[i,j]];
+        hex.els.removeClass(oldClass);
+        hex.els.addClass(klass);
+        classCache[[i,j]]=klass;
       });
     }
     
@@ -555,8 +569,14 @@ var domplot = (function ($) {
                         duration,pattern,callback);
       },
       setEvent : function(id,i,j){
-        var el=domList[id].el,
-            loc=painter.locUnit(i,j);
+        var unit  = domList[id],
+            el    = unit.el,
+            loc   = painter.locUnit(i,j);
+            if(unit.m===undefined || unit.n===undefined){
+              el.css({display:'block'});
+            }
+            unit.m=i;
+            unit.n=j;
             el.css({left  : loc.left,
                     top   : loc.top});
       },
@@ -566,7 +586,10 @@ var domplot = (function ($) {
         });
       },
       diedEvent:function(id){
-        domList[id].el.css({display:'none'});
+        var unit=domList[id];
+        unit.m   = undefined;
+        unit.n   = undefined;
+        unit.el.css({display:'none'});
       }         
     };
     
@@ -578,7 +601,9 @@ var domplot = (function ($) {
             2 : 'stack3'
           };
       
+      
       // Begin utility function 
+      
       function removeStack(id,i,j){
         var newStack=[],
             index=0;
@@ -613,7 +638,9 @@ var domplot = (function ($) {
       function rollStack(m,n){
         topStack(stackMap[[m,n]][0]);
       }
+      
       // End utility function
+      
       
       function clickEvent(i){
         return function(){
@@ -648,8 +675,6 @@ var domplot = (function ($) {
         if(unit.m !== undefined && unit.n !== undefined ){
           removeStack(id,unit.m,unit.n);
         }
-        unit.m=i;
-        unit.n=j;
         r = unstackHandler.setEvent(id,i,j);
         pushStack(id,i,j);
         return r;
@@ -660,9 +685,9 @@ var domplot = (function ($) {
       }
       
       function diedEvent(id){
-        var unit=domList[id];
-        unstackHandler.diedEvent(id);
+        var unit = domList[id];
         removeStack(id,unit.m,unit.n);
+        unstackHandler.diedEvent(id);
       }
       
       function rollStackEvent(m,n){
@@ -684,6 +709,8 @@ var domplot = (function ($) {
     handler = is_used_stack ? stackHandler : unstackHandler;
     
     // End handler swicher
+    
+    
     
     for(i = 0; i < setting.n; i++){
       unitList.push(unitMap(i));

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8">
+    <title> Hex wargame scenario editor </title>
+    <link rel="stylesheet" type="text/css" href="css/jquery/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/hex.css">
+    <link rel="stylesheet" type="text/css" href="css/unit.css">
+  </head>
+  <body>
+    <div id="tabs">
+      <ul>
+        <li><a href="#tabs-1">Select Scenario</a></li>
+        <li><a href="#tabs-2">Map edit</a></li>
+        <li><a href="#tabs-3">Unit edit</a></li>
+        <li><a href="#tabs-4">other setting</a></li>
+      </ul>
+      <div id="tabs-1">
+        <div id="FullScenarioLoader">
+          <h1>Load full Scenario</h1>
+          <input type="file">
+          <button class="load">load json</button>
+        </div>
+        <div>
+          <button id="buttonExport">export current scenario</button>
+        </div>
+      </div>
+      <div id="tabs-2">
+        <div id="toolbox">
+          <div>
+            <select id="selectTerrain"></select>
+          </div>
+          <div>
+            <select id="selectUnit"></select>
+          </div>
+          <div>
+            <button id="btnResetAllUnit">reset all unit</button>
+            <button id="btnChangeHexClass">change hex class</button>
+            <button id="btnChangeUnitLocation">change unit location</button>
+            <button id="btnEnterUnit">enter unit</button>
+            <button id="btnExitUnit">exit unit</button>
+
+          </div>
+        </div>
+        <div id='map'></div>
+      </div>
+      <div id="tabs-3">
+        <h1>Unit edit</h1>
+      </div>
+      <div id="tabs-4">
+        <h1>other setting</h1>
+      </div>
+    </div>
+  <script src="js/jquery/jquery.js"></script>
+  <script src="js/jquery/jquery-ui.js"></script>
+  <script src="js/designPattern.js"></script>
+  <script src="js/selectList.js"></script>
+  <script src="js/domplot.js"></script>
+  <script src="js/mapModel.js"></script>
+  <script src="js/editor.js"></script>
+  </body>
+</html>

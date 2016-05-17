@@ -1,4 +1,9 @@
 
+.line {
+  height : 2px;
+}
+
+
 .counter {
   position    : absolute;
   z-index     : 1;
@@ -62,11 +67,11 @@
 }
 .stack2 {
   z-index   : 2;
-  transform : translate(5px,-5px);
+  transform : translate(6px,-6px);
 }
 .stack3 {
   z-index   : 3;
-  transform : translate(10px,-10px);
+  transform : translate(12px,-12px);
 }
 
 
@@ -120,3 +125,19 @@
 .Kingdom .l0 {color:rgba(255,255,255,1);}
 .Kingdom .l1 {color:rgba(255,255,255,1);}
 .Kingdom .l2 {color:rgba(255,255,255,1);}
+
+.USA {background-color:rgba(47,60,152,1);border:2px solid rgba(10,10,10,1);}
+.USA .pad {background-color:rgba(103,122,181,1);border:1px solid rgba(255,255,255,1);}
+.USA .line {background-color:rgba(255,255,255,1);height : 1px;}
+.USA .size {color:rgba(255,255,255,1);}
+.USA .l0 {color:rgba(255,255,255,1);}
+.USA .l1 {color:rgba(255,255,255,1);}
+.USA .l2 {color:rgba(255,255,255,1);}
+
+.CSA {background-color:rgba(156,157,139,1);border:2px solid rgba(10,10,10,1);}
+.CSA .pad {background-color:rgba(191,169,96,1);border:1px solid rgba(255,255,255,1);}
+.CSA .line {background-color:rgba(255,255,255,1);height : 1px;}
+.CSA .size {color:rgba(0,0,0,1);}
+.CSA .l0 {color:rgba(0,0,0,1);}
+.CSA .l1 {color:rgba(0,0,0,1);}
+.CSA .l2 {color:rgba(0,0,0,1);}

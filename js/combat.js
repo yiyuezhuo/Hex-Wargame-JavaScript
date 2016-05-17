@@ -77,7 +77,7 @@ function routed(unit_id){
 	}
 	else{
 		var target=random.choice(ava);
-		unit.move_to(target[0],target[1],100, "linear",'no_focus');
+		unit.move_to(target[0],target[1],'no_focus');
     console.log('unit',unit.id,'route to',target[0],target[1]);
 	}
 }
