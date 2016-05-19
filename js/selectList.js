@@ -1,6 +1,6 @@
 /*
- * mapModel.js
- * provide object model to comtrol map logic
+ * selectList.js
+ * maintain select widget
 */
 
 /*jslint          browser  : true,  continue  : true,
@@ -13,6 +13,8 @@
 
 
 function selectList(dom,config){
+  
+  
   config = config || {};
   var _value_list = [];
   var _html_list  = [];
@@ -55,6 +57,10 @@ function selectList(dom,config){
     var new_value_list = [];
     var new_html_list  = [];
     
+    //console.log('value',value);
+    //console.log('_value_list')
+    //console.log(_value_list);
+    
     var i;
     for(i=0;i<_value_list.length;i++){
       if(value!==_value_list[i]){
@@ -66,11 +72,16 @@ function selectList(dom,config){
     }
     _value_list=new_value_list;
     _html_list=new_html_list;
+    
+    //console.log('new_value_list');
+    //console.log(new_value_list);
         
     _update();
   }
   
   function value(){
+    console.log('value : _value_list');
+    console.log(_value_list);
     return dom.value;
   }
     
@@ -93,6 +104,8 @@ function selectList(dom,config){
   if(config.value){
     update(config.value);
   }
+  
+  _update();
   
   return {update : update,
           value  : value,

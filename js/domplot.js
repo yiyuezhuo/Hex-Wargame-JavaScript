@@ -559,6 +559,7 @@ var domplot = (function ($) {
       unitInit : function(_unit){
         var unit=painter.unit_factory(_unit.pad);
         deco(unit,_unit);
+        unit.el.css({display:'none'});
         return unit;
       },
       moveEvent : function(id,i,j,callback){
@@ -574,6 +575,9 @@ var domplot = (function ($) {
             loc   = painter.locUnit(i,j);
             if(unit.m===undefined || unit.n===undefined){
               el.css({display:'block'});
+            }
+            if(i === undefined || j === undefined){
+              el.css({display:'none'});
             }
             unit.m=i;
             unit.n=j;

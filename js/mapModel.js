@@ -189,7 +189,7 @@ var mapModel=(function(){
       this.mp=0;
       this.short_path={};//  this value is set by find way method
       this.surplus_map={};
-      this.removed=false;
+      this.removed = _unit.m === undefined || _unit.n === undefined ? true : false;
       this.fight_number=0;// fight time in this turn 
       this.combat_range=1;
     }
@@ -485,6 +485,10 @@ var mapModel=(function(){
     unit_l.forEach(function(unit){
       if (unit.m!==undefined && unit.n!==undefined){
         unit.set_hex(unit.m,unit.n);
+      }
+      else{
+        unit.removed=true;
+        //diedEvent.trigger(this.domId);
       }
       unit.ready();
       

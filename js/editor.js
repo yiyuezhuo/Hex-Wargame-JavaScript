@@ -11,87 +11,9 @@ function downloadFile(fileName, content){
 }
 // End utility function
 
-// UI init
-
-
-var tabsEvents={
-  tabs1 : designPattern.event(),
-  tabs2 : designPattern.event(),
-  tabs3 : designPattern.event(),
-  tabs4 : designPattern.event()
-}
-
-var tabs=$('#tabs');
-tabs.find('.tabs1')[0].__event__=tabsEvents.tabs1;
-tabs.find('.tabs2')[0].__event__=tabsEvents.tabs2;
-tabs.find('.tabs3')[0].__event__=tabsEvents.tabs3;
-tabs.find('.tabs4')[0].__event__=tabsEvents.tabs4;
-tabs.tabs({
-  beforeActivate : function(event,ui){
-    ui.newTab[0].__event__.trigger();
-  }
-});
-
-
-var map_el=$('#map');
-
-var btnResetAllUnit       = document.getElementById('btnResetAllUnit');
-var buttonExport          = document.getElementById('buttonExport');
-var btnChangeHexClass     = document.getElementById('btnChangeHexClass');
-var btnChangeUnitLocation = document.getElementById('btnChangeUnitLocation');
-var btnEnterUnit          = document.getElementById('btnEnterUnit');
-var btnExitUnit           = document.getElementById('btnExitUnit');
-
+// Begin object model
 
 var scenario; // Object is responsible hold and modify scenario_dic object
-
-// reshape
-
-(function(){
-  var mapReshapeDiv=$('#mapReshapeDiv');
-  var mapReshapeDivM=mapReshapeDiv.find('.m');
-  var mapReshapeDivN=mapReshapeDiv.find('.n');
-  var mapReshapeDivBtn=mapReshapeDiv.find('.reset');
-  mapReshapeDivBtn.on('click',function(){
-    var m=Number(mapReshapeDivM[0].value);
-    var n=Number(mapReshapeDivN[0].value);
-    if(scenario){
-      scenario.reshape_hex(m,n);
-    }
-    else{
-      console.log('scenario is not loaded!')
-    }
-  });
-  
-  buttonExport.onclick=function(){
-    scenario.download();
-  }
-
-}());
-
-function loadBoxInit($container,callback){
-  var fileInput=$container.find('input')[0];
-  var loadButton=$container.find('.load')[0];
-  
-  loadButton.onclick=function(){
-    var file=fileInput.files[0];
-    var reader=new FileReader();
-
-    reader.readAsText(file);
-    reader.onload=function(event){
-      var content=event.target.result;
-      callback(content);
-    }
-  };
-}
-
-
-loadBoxInit($('#FullScenarioLoader'),function(content){
-  var scenario_dic=JSON.parse(content);
-  //renderMap(scenario_dic); // TODO : lazy load needed
-  scenario=Object.create(scenarioChangeAble);
-  scenario.__init__(scenario_dic);
-});
 
 var scenarioChangeAble = {
   __init__ : function(scenario_dic){
@@ -168,8 +90,118 @@ var scenarioChangeAble = {
     scenario_dic.hex_dic_list.forEach(function(_hex){
       that.hex_d[[_hex.m,_hex.n]]=_hex;
     });
+  },
+  update:function(key,value){
+    if (key in this.dic){
+      this.dic[key]=value;
+    }
+    else{
+      throw new Error('not exist key');
+    }
+  },
+  updateSetting : function(key,value){
+    if(key in this.dic.setting || key in {stackSize:true}){ // 
+      this.dic.setting[key]=value;
+    }
+    else{
+      throw new Error('not setting exist key');
+    }
   }
 }
+
+
+// End object model
+
+// UI init
+
+
+var tabsEvents={
+  tabs1 : designPattern.event(),
+  tabs2 : designPattern.event(),
+  tabs3 : designPattern.event(),
+  tabs4 : designPattern.event()
+}
+
+var tabs=$('#tabs');
+tabs.find('.tabs1')[0].__event__=tabsEvents.tabs1;
+tabs.find('.tabs2')[0].__event__=tabsEvents.tabs2;
+tabs.find('.tabs3')[0].__event__=tabsEvents.tabs3;
+tabs.find('.tabs4')[0].__event__=tabsEvents.tabs4;
+tabs.tabs({
+  beforeActivate : function(event,ui){
+    ui.newTab[0].__event__.trigger();
+  }
+});
+
+
+var map_el=$('#map');
+
+var btnResetAllUnit       = document.getElementById('btnResetAllUnit');
+var buttonExport          = document.getElementById('buttonExport');
+var btnChangeHexClass     = document.getElementById('btnChangeHexClass');
+var btnChangeUnitLocation = document.getElementById('btnChangeUnitLocation');
+var btnEnterUnit          = document.getElementById('btnEnterUnit');
+var btnExitUnit           = document.getElementById('btnExitUnit');
+var divSetting            = document.getElementById('divSetting');
+
+var divUnitList           = document.getElementById('divUnitList');
+var divUnitListHelper     = document.getElementById('divUnitListHelper');
+
+
+// Begin init tab 1
+
+(function(){
+  
+  function loadBoxInit($container,callback){
+    var fileInput=$container.find('input')[0];
+    var loadButton=$container.find('.load')[0];
+    
+    loadButton.onclick=function(){
+      var file=fileInput.files[0];
+      var reader=new FileReader();
+
+      reader.readAsText(file);
+      reader.onload=function(event){
+        var content=event.target.result;
+        callback(content);
+      }
+    };
+  }
+  
+  loadBoxInit($('#FullScenarioLoader'),function(content){
+    var scenario_dic=JSON.parse(content);
+    //renderMap(scenario_dic); // TODO : lazy load needed
+    scenario=Object.create(scenarioChangeAble);
+    scenario.__init__(scenario_dic);
+  });
+
+  var mapReshapeDiv=$('#mapReshapeDiv');
+  var mapReshapeDivM=mapReshapeDiv.find('.m');
+  var mapReshapeDivN=mapReshapeDiv.find('.n');
+  var mapReshapeDivBtn=mapReshapeDiv.find('.reset');
+  mapReshapeDivBtn.on('click',function(){
+    var m=Number(mapReshapeDivM[0].value);
+    var n=Number(mapReshapeDivN[0].value);
+    if(scenario){
+      scenario.reshape_hex(m,n);
+    }
+    else{
+      console.log('scenario is not loaded!')
+    }
+  });
+  
+  buttonExport.onclick=function(){
+    scenario.download();
+  }
+
+}());
+
+// End init tab 1
+
+
+
+
+// Begin init tab2
 
 tabsEvents.tabs2.register(function(){
   if(scenario){
@@ -181,6 +213,12 @@ tabsEvents.tabs2.register(function(){
   }
 });
 
+// End init tab2
+
+// Begin init tab3
+
+unitEditor.__init__(divUnitList);
+
 tabsEvents.tabs3.register(function(){
   if(scenario){
     console.log('tabs-3 click');
@@ -190,6 +228,24 @@ tabsEvents.tabs3.register(function(){
     console.log('scenario is not load!');
   }
 });
+
+$(divUnitListHelper).find('.create').on('click',function(){
+  //console.log('divUnitList create stub function');
+  console.log('bind create');
+  scenario.create_unit();
+  renderUnitEditor(scenario.to_dict());
+});
+
+$(divUnitListHelper).find('.save').on('click',function(){
+  console.log('bind save');
+  scenario.update('unit_dic_list',unitEditor.pull_list());
+});
+
+
+// End init tab3
+
+// Begin init tab4
+
 
 tabsEvents.tabs4.register(function(){
   if(scenario){
@@ -201,9 +257,31 @@ tabsEvents.tabs4.register(function(){
   }
 });
 
+(function(){
+  var $Setting=$(divSetting);
+  var key_list=['name','author','stackSize','DICE'];
+  var dom_list=key_list.map(function(key){
+    return $Setting.find('input.'+key)[0];
+  });
+  var type_list=[undefined,undefined,Number,Number];
+  
+  
+  
+  $Setting.find('button.save').on('click',function(){
+    dom_list.forEach(function(dom,i){
+      var value= type_list[i] === undefined ? dom.value : type_list[i](dom.value);
+      var key=key_list[i];
+      scenario.updateSetting(key,value);
+    });
+  });
+  
+}());
+
+// End init tab4
+
 
 function renderUnitEditor(scenario_dic){
-  console.log('stub function');
+  unitEditor.push_list(scenario_dic.unit_dic_list);
 }
 
 function renderOtherSetting(scenario_dic){
@@ -287,8 +365,9 @@ function renderMap(scenario_dic){
     stateMap.change='enterUnit';
   });
   
+  
+  
   // End init selectTerrain
-
   
   // // //
   
@@ -303,7 +382,11 @@ function renderMap(scenario_dic){
       clickUnitEvent      : clickUnitEvent
   });
   
-  
+  map_model.unit_l.forEach(function(unit){
+    if(unit.removed){
+      selectUnitList.append({value: unit.id,html: unit.label });
+    }
+  });
   
   function changeUnitLocation(unit,hex){
     var _unit=scenario.unit_d[unit.id];
@@ -334,17 +417,6 @@ function renderMap(scenario_dic){
     hexClassUpdateEvent.trigger(hex,stateMap.chooseHexType);
   }
   
-  function createUnit(unit){
-    // new unit will join selectUnitList 
-    // unit object is created but not join in unit_l etc
-  }
-  
-  function deleteUnit(unit){
-    // only unit in selectUnitList (removed from map) can be deleted
-    
-  }
-  
-
     
   
   clickHexEvent.register(function(hex){
@@ -377,7 +449,5 @@ function renderMap(scenario_dic){
       enterUnit(map_model.unit_d[Number(selectUnitList.value())],hex);
     }
   });
-
-
   
 }
