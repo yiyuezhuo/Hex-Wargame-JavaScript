@@ -24,15 +24,15 @@ var CRT= (function(){
 	return table
 })();
 */
-var CRT=scenario_dic['CRT'];
 
 function result_distribution(atk,def){
 	// receive attacker total point and defender total point , map to a CRT column to draw result laterly.
 	var odds;
 	var odds_r=atk/def;
-	var odds_c=0.25
+	var odds_c=0.25;
+  var CRT=CRT=scenario_dic['CRT'];
 	for (odds in CRT){
-		if (odds>odds_c && odds_r>=odds){
+		if (odds > odds_c && odds_r>=odds){
 			odds_c=odds;
 		}
 	}

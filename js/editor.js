@@ -1,7 +1,5 @@
 
-var tabs=$('#tabs');
-tabs.tabs();
-
+// Begin utility function
 function downloadFile(fileName, content){
     var aLink = document.createElement('a');
     var blob = new Blob([content]);
@@ -11,7 +9,65 @@ function downloadFile(fileName, content){
     aLink.href = URL.createObjectURL(blob);
     aLink.dispatchEvent(evt);
 }
+// End utility function
 
+// UI init
+
+
+var tabsEvents={
+  tabs1 : designPattern.event(),
+  tabs2 : designPattern.event(),
+  tabs3 : designPattern.event(),
+  tabs4 : designPattern.event()
+}
+
+var tabs=$('#tabs');
+tabs.find('.tabs1')[0].__event__=tabsEvents.tabs1;
+tabs.find('.tabs2')[0].__event__=tabsEvents.tabs2;
+tabs.find('.tabs3')[0].__event__=tabsEvents.tabs3;
+tabs.find('.tabs4')[0].__event__=tabsEvents.tabs4;
+tabs.tabs({
+  beforeActivate : function(event,ui){
+    ui.newTab[0].__event__.trigger();
+  }
+});
+
+
+var map_el=$('#map');
+
+var btnResetAllUnit       = document.getElementById('btnResetAllUnit');
+var buttonExport          = document.getElementById('buttonExport');
+var btnChangeHexClass     = document.getElementById('btnChangeHexClass');
+var btnChangeUnitLocation = document.getElementById('btnChangeUnitLocation');
+var btnEnterUnit          = document.getElementById('btnEnterUnit');
+var btnExitUnit           = document.getElementById('btnExitUnit');
+
+
+var scenario; // Object is responsible hold and modify scenario_dic object
+
+// reshape
+
+(function(){
+  var mapReshapeDiv=$('#mapReshapeDiv');
+  var mapReshapeDivM=mapReshapeDiv.find('.m');
+  var mapReshapeDivN=mapReshapeDiv.find('.n');
+  var mapReshapeDivBtn=mapReshapeDiv.find('.reset');
+  mapReshapeDivBtn.on('click',function(){
+    var m=Number(mapReshapeDivM[0].value);
+    var n=Number(mapReshapeDivN[0].value);
+    if(scenario){
+      scenario.reshape_hex(m,n);
+    }
+    else{
+      console.log('scenario is not loaded!')
+    }
+  });
+  
+  buttonExport.onclick=function(){
+    scenario.download();
+  }
+
+}());
 
 function loadBoxInit($container,callback){
   var fileInput=$container.find('input')[0];
@@ -29,9 +85,12 @@ function loadBoxInit($container,callback){
   };
 }
 
+
 loadBoxInit($('#FullScenarioLoader'),function(content){
   var scenario_dic=JSON.parse(content);
-  renderMap(scenario_dic);
+  //renderMap(scenario_dic); // TODO : lazy load needed
+  scenario=Object.create(scenarioChangeAble);
+  scenario.__init__(scenario_dic);
 });
 
 var scenarioChangeAble = {
@@ -57,22 +116,117 @@ var scenarioChangeAble = {
     var name = name || 'scenario.json';
     return downloadFile(name,this.to_json());
   },
+  _new_unit: function(){
+    var unit_dic_list=this.dic.unit_dic_list
+    var _unit=unit_dic_list[unit_dic_list.length-1];
+    var unit={};
+    Object.keys(_unit).forEach(function(key){
+      unit[key]=_unit[key];
+    });
+    unit.id=_unit.id+1;
+    unit.m=undefined;
+    unit.n=undefined;
+    return unit;
+  },
+  create_unit: function(){
+    // add a unit its attribute same as last one
+    var unit=this._new_unit()
+    this.dic.unit_dic_list.push(unit);
+    this.unit_d[unit.id]=unit;
+  },
+  delete_unit: function(unit){
+    this.unit_dic_list=this.unit_dic_list.filter(function(_unit){
+      return _unit !== unit;
+    });
+    delete this.unit_d[unit.id];
+  },
+  reshape_hex:function(m,n){
+    var i,j;
+    // we will use _hex to create new hex as template
+    var _hex=this.dic.hex_dic_list[0];
+    var hex;
+    var that=this;
+    // reset size
+    this.size=[m,n];
+    // delete surplus hex
+    this.dic.hex_dic_list.filter(function(hex){
+      return hex.m<m && hex.n<n;
+    });
+    // create hex
+    for(i=0;i<m;i++){
+      for(j=0;j<n;j++){
+        if(!(i < m && j < n)){
+          hex={};
+          Object.keys(_hex).forEach(function(key){
+            hex[key]=_hex[key];
+          });
+          this.hex_dic_list.push(hex);
+        }
+      }
+    }
+    // reset hex_d
+    scenario_dic.hex_dic_list.forEach(function(_hex){
+      that.hex_d[[_hex.m,_hex.n]]=_hex;
+    });
+  }
+}
+
+tabsEvents.tabs2.register(function(){
+  if(scenario){
+    console.log('tabs-2 click');
+    renderMap(scenario.to_dict());
+  }
+  else{
+    console.log('scenario is not load!');
+  }
+});
+
+tabsEvents.tabs3.register(function(){
+  if(scenario){
+    console.log('tabs-3 click');
+    renderUnitEditor(scenario.to_dict());
+  }
+  else{
+    console.log('scenario is not load!');
+  }
+});
+
+tabsEvents.tabs4.register(function(){
+  if(scenario){
+    console.log('tabs-4 click');
+    renderOtherSetting(scenario.to_dict());
+  }
+  else{
+    console.log('scenario is not load!');
+  }
+});
+
+
+function renderUnitEditor(scenario_dic){
+  console.log('stub function');
+}
+
+function renderOtherSetting(scenario_dic){
+  console.log('stub function');
 }
 
 function renderMap(scenario_dic){
   
+  map_el.empty(); // redraw
+
+  var stateMap={change             : undefined,
+                chooseHexType      : undefined,
+                chooseEnteredUnit  : undefined,
+                //chooseExitedUnit : undefined,
+                chooseUnitClass    : undefined};
+                
   
-  var stateMap={change            : undefined,
-                chooseHexType     : undefined,
-                chooseEnteredUnit : undefined,
-                //chooseExitedUnit  : undefined,
-                chooseUnitClass   : undefined};
   
-  var buttonExport=document.getElementById('buttonExport');
-  var btnChangeHexClass=document.getElementById('btnChangeHexClass');
-  var btnChangeUnitLocation=document.getElementById('btnChangeUnitLocation');
-  var btnEnterUnit=document.getElementById('btnEnterUnit');
-  var btnExitUnit=document.getElementById('btnExitUnit');
+  btnResetAllUnit.onclick=function(){
+    map_model.unit_l.forEach(function(unit){
+      exitUnit(unit);
+    });
+  };
   
   btnChangeHexClass.onclick=function(){
     stateMap.change='changeHexClass';
@@ -114,7 +268,7 @@ function renderMap(scenario_dic){
   
   // End init selectTerrain
   
-  // Begin init selectTerrain
+  // Begin init selectUnit
   
   
   var selectUnit = document.getElementById('selectUnit');
@@ -138,22 +292,18 @@ function renderMap(scenario_dic){
   
   // // //
   
+  
   var hexClassUpdateEvent = designPattern.event();
   var clickHexEvent       = designPattern.event();
   var clickUnitEvent      = designPattern.event();
   
-  var map_el=$('#map');
   var map_model=mapModel(map_el,scenario_dic,{
       hexClassUpdateEvent : hexClassUpdateEvent,
       clickHexEvent       : clickHexEvent,
       clickUnitEvent      : clickUnitEvent
   });
   
-  var scenario=Object.create(scenarioChangeAble);
-  scenario.__init__(scenario_dic);
-  buttonExport.onclick=function(){
-    scenario.download();
-  }
+  
   
   function changeUnitLocation(unit,hex){
     var _unit=scenario.unit_d[unit.id];
@@ -175,13 +325,23 @@ function renderMap(scenario_dic){
     _unit.m=undefined;
     _unit.n=undefined;
     unit.destroy();
-    selectUnitList.append(unit.id);
+    selectUnitList.append({value: unit.id,html: unit.label });
   }
   
   function changeHexClass(hex,klass){
     var _hex=scenario.hex_d[[hex.m,hex.n]];
     _hex.terrain=klass;
     hexClassUpdateEvent.trigger(hex,stateMap.chooseHexType);
+  }
+  
+  function createUnit(unit){
+    // new unit will join selectUnitList 
+    // unit object is created but not join in unit_l etc
+  }
+  
+  function deleteUnit(unit){
+    // only unit in selectUnitList (removed from map) can be deleted
+    
   }
   
 

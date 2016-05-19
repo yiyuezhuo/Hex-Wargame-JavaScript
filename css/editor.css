@@ -1,0 +1,19 @@
+#map{
+  position : relative;
+  left     : 120px;
+  top      : 50px;
+}
+
+.ui-tabs-nav{
+  position  : fixed;
+  z-index   : 20;
+}
+
+.ui-tabs .ui-tabs-panel{
+  padding-top : 30px;
+  z-index   : 20;
+}
+
+#toolbox{
+  top : 70px;
+}

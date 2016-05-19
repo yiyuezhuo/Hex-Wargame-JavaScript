@@ -1,49 +1,269 @@
-var map_el=$('#map');
-//map_el.css({'position':'absolute','left':'100px','top':'25px'});
 
-short_edge_length=50;
-hex_k=Math.cos(Math.PI/6)*2;
-long_edge_length=short_edge_length*hex_k;
-attach_edge=short_edge_length*1.5;
-default_hex_type='tip';
-counter_x=48;
-counter_y=48;
-//stackSize=1; // test, 
+var scenario_dic;
 
-stackSize = scenario_dic.setting.stackSize || 1;
+var stateMap;
 
-var painter=domplot.Painter(map_el);
+var unit_l,unit_d,hex_l,hex_d,player_l,player_d,mat;
 
 var clickHexEvent   = designPattern.event();
-//var highlightEvent  = designPattern.event();
-//var unhighlightEvent= designPattern.event();
 var clickUnitEvent  = designPattern.event();
-//var moveEvent       = designPattern.event();
-//var setEvent        = designPattern.event();
-//var updateUnitEvent = designPattern.event();
-//var diedEvent       = designPattern.event();
+
 var nextPhaseEvent  = designPattern.event();
-//var hexClassUpdateEvent = designPattern.event();
 var resetFocusEvent = designPattern.event();
-var resetEvent=designPattern.event();
+var resetEvent      = designPattern.event();
+
+var unit_click_box,battle_box,news_box,toolbox,event_box,AI_box;
+
+var terrain_d;
+
+function gameInit(data){
+  
+  scenario_dic=data;
+  
+  var map_el=$('#map');
+  
+  var short_edge_length=50;
+  var hex_k=Math.cos(Math.PI/6)*2;
+  var long_edge_length=short_edge_length*hex_k;
+  var attach_edge=short_edge_length*1.5;
+  //var default_hex_type='tip';
+  var counter_x=48;
+  var counter_y=48;
+  
+  var stackSize = scenario_dic.setting.stackSize || 1;
+
+  var painter=domplot.Painter(map_el);
+  
+
+  stateMap={ phase : 'init', //spciel phase only exists in first turn
+             turn  : 1, 
+             click : 'start',
+             side  : 0};
+             
+  unit_click_box=new Unit_click_box();
+  battle_box=new Battle_box();
+
+  news_box=new News_box();
+  toolbox=new Toolbox();
+
+  event_box=new Event_box();
+  AI_box= new AI_box_class()
+  AI_box.setup(scenario_dic.AI_list);
+  terrain_d=scenario_dic.terrain;
 
 
-var stateMap={ phase : 'init', //spciel phase only exists in first turn
-               turn  : 1, 
-               click : 'start',
-               side  : 0};
+  var map_model=mapModel(map_el,scenario_dic,
+                         {  clickHexEvent     : clickHexEvent,
+                            clickUnitEvent    : clickUnitEvent,
+                            });
+                                  
+                                  
+  unit_l = map_model.unit_l;
+  unit_d = map_model.unit_d;
+  hex_l = map_model.hex_l;
+  hex_d = map_model.hex_d;
+  player_l = map_model.player_l;
+  player_d = map_model.player_d;
+  mat = map_model.mat;
+  unitList = map_model.unitList;
+  
+  // config matcher and bind dom update event to deconple logic
 
-stateSchema=function(schema,handler){
-  // this is decorator
-  function _handler(){
-    if (all(Object.keys(schema).map(function(key){
-      return schema[key]===stateMap[key];
-    }))){
-      return handler.apply(this,arguments);
+
+  (function(){
+    
+    var succEvent = designPattern.event();
+    var failEvent = designPattern.event();
+    var endFailEvent = designPattern.event();
+    
+    function updateOdds(message){
+      var atkHtml=message.atk_unit_list.map(function(unit){
+        return '<p>'+unit.to_tag()+'</p>';
+      });
+      var defHtml=message.def_unit_list.map(function(unit){
+        return '<p>'+unit.to_tag()+'</p>';
+      });
+      toolbox.battle_odds_attack.empty();
+      toolbox.battle_odds_attack.html(atkHtml);
+      toolbox.battle_odds_defence.empty();
+      toolbox.battle_odds_defence.html(defHtml);
     }
+    
+    succEvent.register(function(message){
+      //console.log('succEvent trigger');
+      updateOdds(message);
+    });
+    
+    failEvent.register(function(){
+      //console.log('failEvent trigger');
+      toolbox.battle_odds_attack.empty();
+      toolbox.battle_odds_defence.empty();
+    });
+    
+    $('#reset_a').click(function(){
+      battle_matcher.reset();
+      updateOdds(battle_matcher.message());
+    });
+    
+    resetEvent.register(function(){
+      battle_matcher.reset();
+      updateOdds(battle_matcher.message());
+    });
+    
+    battle_matcher.__init__({
+      succEvent : succEvent,
+      failEvent : failEvent,
+      endFailEvent : endFailEvent
+    });
+    
+  }());
+  
+  (function(){ // old phase_box and toolbox part
+    
+    var phaseSequence=['ready','move','combat'];
+    var AI_run_a=$('#AI_run_a');
+    var show_widget=$('#turn_state');
+    
+    AI_run_a.click(AI_run);
+    
+    $('#next_phase_a').click(function(){
+      nextPhaseEvent.trigger();
+    });
+    
+    function change_phase_to(side,state){
+      console.log(player_d[side].name+' '+state+' phase');
+      show_widget.html(player_d[side].name+' '+state+' phase');
+      stateMap.phase=state;
+      stateMap.side=side;
+      event_box.fire(state);
+    }
+    
+    function next_player_id(){
+      return other([0,1],stateMap.side);
+    }
+    
+    nextPhaseEvent.register(stateSchema({
+      phase : 'init'
+    },function(){
+      change_phase_to(0,'ready');
+      //next_player.ready();
+      toolbox.combat_box.hide();
+      AI_run_a.show();
+      return true;
+    }));
+
+      
+    nextPhaseEvent.register(stateSchema({
+      phase : 'ready'
+    },function(){
+      AI_run_a.hide();
+      change_phase_to(stateMap.side,'move');
+      stateMap.click='start';
+      return true;
+    }));
+    
+    nextPhaseEvent.register(stateSchema({
+      phase : 'move'
+    },function(){
+      stateMap.click='join';
+      change_phase_to(stateMap.side,'combat');
+      toolbox.combat_box.show();
+      return true;
+    }));
+
+    nextPhaseEvent.register(stateSchema({
+      phase : 'combat'
+    },function(){
+      var ending_player=player_d[stateMap.side];
+      var next_player=player_d[next_player_id()]
+      ending_player.end();
+      change_phase_to(next_player.id,'ready');
+      next_player.ready();
+      toolbox.combat_box.hide();
+      AI_run_a.show();
+      stateMap.turn+=1;
+      return true;
+    }));
+
+  }());
+
+
+  
+  function stateSchema(schema,handler){
+    // this is decorator
+    function _handler(){
+      if (all(Object.keys(schema).map(function(key){
+        return schema[key]===stateMap[key];
+      }))){
+        return handler.apply(this,arguments);
+      }
+    }
+    return _handler;
   }
-  return _handler;
+  
+  resetFocusEvent.register(function(){
+    Unit_click_box.reset_focus();
+  });
+
+  clickHexEvent.register(stateSchema(
+              {phase : 'move',
+               click : 'start'},
+              function(hex){
+                console.log(hex.m,hex.n,'can not do anything');
+              }));
+              
+  clickHexEvent.register(stateSchema(
+              {phase : 'move',
+               click : 'choosed'},
+              function(hex){
+                //var hex=mat[i][j];
+                if (unit_click_box.choose_unit.move_range()[[hex.m,hex.n]]!==undefined){
+                  unit_click_box.choose_unit.move_to_path(hex.x,hex.y);
+                }
+                else{
+                  stateMap.click='start';
+                  unit_click_box.remove_focus();
+                  console.log(hex.m,hex.n,'Too long to move');
+                }
+              }));
+              
+  clickHexEvent.register(stateSchema(
+              {phase : 'combat',
+               click : 'join'},
+              function(hex){
+                console.log(hex.m,hex.n,'nothing to do for the hex in join state');
+              }));
+
+  clickHexEvent.register(stateSchema(
+              {phase : 'combat',
+               click : 'wait_choose'},
+              function(hex){
+                console.log(hex.m,hex.n,'wait_choose');
+              }));
+
+  clickHexEvent.register(stateSchema(
+              {phase : 'combat',
+               click : 'wait_hex'},
+              function(hex){
+                //var hex=mat[i][j];
+                if (battle_box.pursuit_hex_able(hex)){
+                  battle_box.do_pursuit(unit_click_box.choose_unit,hex);
+                  console.log('I can do that!');
+                }
+                else{
+                  console.log(hex.m,hex.n,'illege hex');
+                }
+              }));
+
+  clickUnitEvent.register(function(unit){
+    unit_click_box.unit_click(unit);
+  });
+
+  nextPhaseEvent.trigger(); // init -> ready
+
+
 }
+
 
 function all(l){
 	return l.reduce(function(x,y){return x&&y});
@@ -236,9 +456,6 @@ function Unit_click_box(){
 	
 }
 
-resetFocusEvent.register(function(){
-  Unit_click_box.reset_focus();
-});
 
 var battle_matcher=(function(){
   
@@ -619,66 +836,6 @@ var battle_matcher=(function(){
   
 }());
 
-// config matcher and bind dom update event to deconple logic
-
-
-!function(){
-  
-  var succEvent = designPattern.event();
-  var failEvent = designPattern.event();
-  var endFailEvent = designPattern.event();
-  
-  function updateOdds(message){
-    var atkHtml=message.atk_unit_list.map(function(unit){
-      return '<p>'+unit.to_tag()+'</p>';
-    });
-    var defHtml=message.def_unit_list.map(function(unit){
-      return '<p>'+unit.to_tag()+'</p>';
-    });
-    toolbox.battle_odds_attack.empty();
-    toolbox.battle_odds_attack.html(atkHtml);
-    toolbox.battle_odds_defence.empty();
-    toolbox.battle_odds_defence.html(defHtml);
-  }
-  
-  succEvent.register(function(message){
-    //console.log('succEvent trigger');
-    updateOdds(message);
-  });
-  
-  failEvent.register(function(){
-    //console.log('failEvent trigger');
-    toolbox.battle_odds_attack.empty();
-    toolbox.battle_odds_defence.empty();
-  });
-  
-  $('#reset_a').click(function(){
-    battle_matcher.reset();
-    updateOdds(battle_matcher.message());
-  });
-  
-  resetEvent.register(function(){
-    battle_matcher.reset();
-    updateOdds(battle_matcher.message());
-  });
-  
-  /*
-  failEvent.register(function(){
-    console.log('failEvent');
-  });
-
-  endFailEvent.register(function(){
-    console.log('endFailEvent');
-  });  
-  */
-  battle_matcher.__init__({
-    succEvent : succEvent,
-    failEvent : failEvent,
-    endFailEvent : endFailEvent
-  });
-
-  
-}();
 
 
 
@@ -821,77 +978,6 @@ function Battle_box(){
 }
 
 
-
-(function(){ // old phase_box and toolbox part
-  
-  var phaseSequence=['ready','move','combat'];
-  var AI_run_a=$('#AI_run_a');
-  var show_widget=$('#turn_state');
-  
-  AI_run_a.click(AI_run);
-  
-  $('#next_phase_a').click(function(){
-    nextPhaseEvent.trigger();
-  });
-  
-  function change_phase_to(side,state){
-    console.log(player_d[side].name+' '+state+' phase');
-		show_widget.html(player_d[side].name+' '+state+' phase');
-		stateMap.phase=state;
-    stateMap.side=side;
-    event_box.fire(state);
-  }
-  
-  function next_player_id(){
-    return other([0,1],stateMap.side);
-  }
-  
-  nextPhaseEvent.register(stateSchema({
-    phase : 'init'
-  },function(){
-    change_phase_to(0,'ready');
-    //next_player.ready();
-    toolbox.combat_box.hide();
-    AI_run_a.show();
-    return true;
-  }));
-
-    
-  nextPhaseEvent.register(stateSchema({
-    phase : 'ready'
-  },function(){
-    AI_run_a.hide();
-    change_phase_to(stateMap.side,'move');
-    stateMap.click='start';
-    return true;
-  }));
-  
-  nextPhaseEvent.register(stateSchema({
-    phase : 'move'
-  },function(){
-    stateMap.click='join';
-    change_phase_to(stateMap.side,'combat');
-    toolbox.combat_box.show();
-    return true;
-  }));
-
-  nextPhaseEvent.register(stateSchema({
-    phase : 'combat'
-  },function(){
-    var ending_player=player_d[stateMap.side];
-    var next_player=player_d[next_player_id()]
-    ending_player.end();
-    change_phase_to(next_player.id,'ready');
-    next_player.ready();
-    toolbox.combat_box.hide();
-    AI_run_a.show();
-    stateMap.turn+=1;
-    return true;
-  }));
-
-}());
-
-
 function Toolbox(){
 	this.el=$('#toolbox');
 	//this.el.css({'z-index':20,position:'fixed','background-color': 'rgb(250, 250, 250)'});
@@ -945,94 +1031,4 @@ function News_box(){
 	this.el.hide();
 }
 
-
-
-
-
-var unit_click_box=new Unit_click_box();
-//var hex_click_box=new Hex_click_box();
-//var phase_box=new Phase_box();
-var battle_box=new Battle_box();
-
-var news_box=new News_box();
-var toolbox=new Toolbox();
-
-var event_box=new Event_box();
-var AI_box= new AI_box_class()
-AI_box.setup(scenario_dic.AI_list);
-var terrain_d=scenario_dic.terrain;
-
-
-var map_model=mapModel(map_el,scenario_dic,
-                       {  clickHexEvent     : clickHexEvent,
-                          clickUnitEvent    : clickUnitEvent,
-                          });
-                                
-var unit_l,unit_d,hex_l,hex_d,player_l,player_d,mat;
-                                
-unit_l = map_model.unit_l;
-unit_d = map_model.unit_d;
-hex_l = map_model.hex_l;
-hex_d = map_model.hex_d;
-player_l = map_model.player_l;
-player_d = map_model.player_d;
-mat = map_model.mat;
-unitList = map_model.unitList;
-
-
-clickHexEvent.register(stateSchema(
-            {phase : 'move',
-             click : 'start'},
-            function(hex){
-              console.log(hex.m,hex.n,'can not do anything');
-            }));
-            
-clickHexEvent.register(stateSchema(
-            {phase : 'move',
-             click : 'choosed'},
-            function(hex){
-              //var hex=mat[i][j];
-              if (unit_click_box.choose_unit.move_range()[[hex.m,hex.n]]!==undefined){
-                unit_click_box.choose_unit.move_to_path(hex.x,hex.y);
-              }
-              else{
-                stateMap.click='start';
-                unit_click_box.remove_focus();
-                console.log(hex.m,hex.n,'Too long to move');
-              }
-            }));
-            
-clickHexEvent.register(stateSchema(
-            {phase : 'combat',
-             click : 'join'},
-            function(hex){
-              console.log(hex.m,hex.n,'nothing to do for the hex in join state');
-            }));
-
-clickHexEvent.register(stateSchema(
-            {phase : 'combat',
-             click : 'wait_choose'},
-            function(hex){
-              console.log(hex.m,hex.n,'wait_choose');
-            }));
-
-clickHexEvent.register(stateSchema(
-            {phase : 'combat',
-             click : 'wait_hex'},
-            function(hex){
-              //var hex=mat[i][j];
-              if (battle_box.pursuit_hex_able(hex)){
-                battle_box.do_pursuit(unit_click_box.choose_unit,hex);
-                console.log('I can do that!');
-              }
-              else{
-                console.log(hex.m,hex.n,'illege hex');
-              }
-            }));
-
-clickUnitEvent.register(function(unit){
-  unit_click_box.unit_click(unit);
-});
-
-
-nextPhaseEvent.trigger(); // init -> ready
+//gameInit();

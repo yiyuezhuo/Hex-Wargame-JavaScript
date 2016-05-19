@@ -7,14 +7,15 @@
     <link rel="stylesheet" type="text/css" href="css/common.css">
     <link rel="stylesheet" type="text/css" href="css/hex.css">
     <link rel="stylesheet" type="text/css" href="css/unit.css">
+    <link rel="stylesheet" type="text/css" href="css/editor.css">
   </head>
   <body>
     <div id="tabs">
       <ul>
-        <li><a href="#tabs-1">Select Scenario</a></li>
-        <li><a href="#tabs-2">Map edit</a></li>
-        <li><a href="#tabs-3">Unit edit</a></li>
-        <li><a href="#tabs-4">other setting</a></li>
+        <li class="tabs1"><a href="#tabs-1">Select Scenario</a></li>
+        <li class="tabs2"><a href="#tabs-2">Map edit</a></li>
+        <li class="tabs3"><a href="#tabs-3">Unit edit</a></li>
+        <li class="tabs4"><a href="#tabs-4">other setting</a></li>
       </ul>
       <div id="tabs-1">
         <div id="FullScenarioLoader">
@@ -22,7 +23,16 @@
           <input type="file">
           <button class="load">load json</button>
         </div>
+        <hr></hr>
+        <div id="mapReshapeDiv">
+          <h1>change scenario size</h1>
+          <div> rows <input type="text" class="m" value="20"></div>
+          <div> columns <input type="text" class="n" value="20"></div>
+          <button class="reset">reset</button>
+        </div>
+        <hr></hr>
         <div>
+          <h1>Save scenario</h1>
           <button id="buttonExport">export current scenario</button>
         </div>
       </div>
@@ -47,6 +57,8 @@
       </div>
       <div id="tabs-3">
         <h1>Unit edit</h1>
+        <div class="unitList"></div>
+        <button class="create">create new unit</button>
       </div>
       <div id="tabs-4">
         <h1>other setting</h1>

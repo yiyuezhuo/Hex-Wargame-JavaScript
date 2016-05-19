@@ -1,58 +1,49 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-  <link  rel="stylesheet" type="text/css" href="css/common.css">
-  <link  rel="stylesheet" type="text/css" href="css/unit.css">
-  <link  rel="stylesheet" type="text/css" href="css/hex.css">
-</head>
-<body>
-  <div id="map"></div>
-  <div id="toolbox">
-    <h1>
-    Hex based Wargame
-    </h1>
-    <h2>
-    by yiyuezhuo
-    </h2>
-    <a href="https://github.com/yiyuezhuo/Hex-Wargame-JavaScript" target="_Blank">
-    developer
-    </a>
-    <div id="description">
-      <p>scenario:</p>
-      <div id="description_name"></div><br>
-      <div id="description_author"></div><br>
-    </div>
-    <p id='turn_state'>turn_state</p>
-    <button id='next_phase_a'>next phase</button>
-    <button id='AI_run_a'>AI run</button>
-
-    <div id='combat_box'>
-      <button id='do_it_a'>do it!</button>
-      <button id='reset_a'>reset combat</button>
-      <button id='chase_a'>stop chase</button>
-      <div id='battle_odds'>
-        <div id='battle_odds_attack'></div>
-        <hr>
-        <div id='battle_odds_defence'></div>
+  <head>
+    <meta charset="utf8">
+    <link type="text/css" rel="stylesheet" href="css/index.css">
+    <title>Hex wargame index</title>
+  </head>
+  <body>
+    <div id="view">
+      <h1>Hex wargame</h1>
+      <div>
+        <h2>Official scenario</h2>
+        <ul>
+        <li><a href="game.html?varp=scenario/Assaye.js">ASSAYE 1803</a></li>
+        <li><a href="game.html?varp=scenario/BullRun1.js">The battle of first Bull Run</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Load local scenario</h2>
+        <p>choose a local scenario file(*.json) to load it.</p>
+        <a href="game.html?local=true">Choose</a>
+      </div>
+      <div>
+        <h2>Load Internet scenario</h2>
+        
+        <input type="text" id="inputJSONURL">
+        <button id="btnJSON">Load</button>
+      </div>
+      <hr></hr>
+      <div>
+        <h2>Scenario Editor</h2>
+        <p>Create your own hex wargame!</p>
+        <a href="editor.html">enter</a>
+      </div>
+      <hr></hr>
+      <div>
+        <h2>Tutorial</h2>
+        <p>TODO...</p>
+      </div>
+      <hr></hr>
+      <div>
+        <h2>Developer</h2>
+        <p>yiyuezhuo</p>
+        <a href="https://github.com/yiyuezhuo/Hex-Wargame-JavaScript">GitHub</a>
       </div>
     </div>
-  </div>
-  <div id="news_box">
-    <p>News box</p>
-    <div id="news_text"></div><br>
-    <button id="news_exit_a">exit</button>
-  </div>
-  
-  <script src="js/jquery/jquery.js"></script>
-  <script src="js/designPattern.js"></script>
-  <script src="scenario/output.js"></script>
-  <script src="js/domplot.js"></script>
-  <script src="js/random.js"></script>
-  <script src="js/scenarioEvent.js"></script>
-  <script src="js/AI.js"></script>
-  <script src="js/mapModel.js"></script>
-  <script src="js/logic.js"></script>
-  <script src="js/combat.js"></script>
-</body>
+  </body>
+  <script src="js/index.js"></script>
 </html>

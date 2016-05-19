@@ -240,6 +240,7 @@ var mapModel=(function(){
       this.n=n;
       setEvent.trigger(this.domId,m,n);
       hex_d[[m,n]].enter(this);
+      this.removed=false;
     }
     /*
     Unit.prototype.hex_pass=function(m1,n1,m2,n2){
@@ -521,11 +522,11 @@ var mapModel=(function(){
         var pipe=designPattern.event_pipe(events.clickHexEvent,clickHexEvent);
         
         events.clickHexEvent.register(function(hex){
-          console.log('events.clickHexEvent.register');
+          //console.log('events.clickHexEvent.register');
           pipe.right.trigger(hex.domM,hex.domN);
         });
         clickHexEvent.register(function(i,j){
-          console.log('clickHexEvent.register');
+          //console.log('clickHexEvent.register');
           pipe.left.trigger(mat[i][j]);
         });
       }());

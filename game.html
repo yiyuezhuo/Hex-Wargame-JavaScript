@@ -1,0 +1,69 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <link  rel="stylesheet" type="text/css" href="css/common.css">
+  <link  rel="stylesheet" type="text/css" href="css/unit.css">
+  <link  rel="stylesheet" type="text/css" href="css/hex.css">
+</head>
+<body>
+  <div id="gameView">
+    <div id="map"></div>
+    <div id="toolbox">
+      <h1>
+      Hex based Wargame
+      </h1>
+      <h2>
+      by yiyuezhuo
+      </h2>
+      <a href="https://github.com/yiyuezhuo/Hex-Wargame-JavaScript" target="_Blank">
+      developer
+      </a>
+      <div id="description">
+        <p>scenario:</p>
+        <div id="description_name"></div><br>
+        <div id="description_author"></div><br>
+      </div>
+      <p id='turn_state'>turn_state</p>
+      <button id='next_phase_a'>next phase</button>
+      <button id='AI_run_a'>AI run</button>
+
+      <div id='combat_box'>
+        <button id='do_it_a'>do it!</button>
+        <button id='reset_a'>reset combat</button>
+        <button id='chase_a'>stop chase</button>
+        <div id='battle_odds'>
+          <div id='battle_odds_attack'></div>
+          <hr>
+          <div id='battle_odds_defence'></div>
+        </div>
+      </div>
+    </div>
+    <div id="news_box">
+      <p>News box</p>
+      <div id="news_text"></div><br>
+      <button id="news_exit_a">exit</button>
+    </div>
+  </div>
+  <div id="localLoderView">
+    <input type="file">
+    <button class='load'>load</button>
+  </div>
+  <div id="loadingView">
+  <h1>Please choose a local scenario file(*.json) to load</h1>
+  <p>loading...</p>
+  </div>
+  <script src="js/jquery/jquery.js"></script>
+  <script src="js/dataLoader.js"></script>
+  <!-- <script src="js/preload.js"></script> -->
+  <script src="js/designPattern.js"></script>
+  <!-- <script src="scenario/output.js"></script> -->
+  <script src="js/domplot.js"></script>
+  <script src="js/random.js"></script>
+  <script src="js/scenarioEvent.js"></script>
+  <script src="js/AI.js"></script>
+  <script src="js/mapModel.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/combat.js"></script>
+</body>
+</html>
