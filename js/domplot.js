@@ -32,6 +32,281 @@ var domplot = (function ($) {
     css_el=$('<style>'+css_code+'</style>');
     css_el.appendTo(head);
   }
+  
+  function Brush(config){
+    // Brush provide plot utility function, they only return pure dom object
+    config = config || {};
+    this.short_edge_length = config.edge_length || 50;
+    this.attach_edge       = this.short_edge_length * 1.5;
+    this.counter_x         = config.counter_x || this.short_edge_length * 0.96;
+    this.counter_y         = config.counter_y || this.short_edge_length * 0.96;
+  }
+  Brush.prototype.draw_hex2 = function(left,top){
+      // css version
+      var short_edge_length = this.short_edge_length,
+          root = $('<div></div>');
+      root.addClass('hex');
+      root.css({top      : top-short_edge_length/2,
+                left     : left,
+                position : 'absolute'}
+      );
+      //root.appendTo(map_el);
+      ['head','center','tail'].forEach(function(cname){
+        var c=$("<div></div>");
+        c.addClass(cname);
+        c.appendTo(root);
+      });
+      return root;
+  };
+  
+  Brush.prototype.attach_hex = function(left,top){
+    var short_edge_length = this.short_edge_length,
+        attach_edge       = this.attach_edge,
+        base      = $('<div></div>'),
+        diff_left = short_edge_length*Math.cos(Math.PI/6)-attach_edge/2,
+        diff_top  = (attach_edge-short_edge_length)/2;
+    
+    base.css({width    : attach_edge,
+              height   : attach_edge,
+              position : 'absolute',
+              left     : left+diff_left+'px',
+              top      : top-diff_top+'px'
+             });
+    base.addClass('attach');
+    //base.appendTo(map_el);	
+    return base;
+  };
+  Brush.prototype.create_bound = function(left,top){
+    // create bound around hex
+    var L   = this.short_edge_length,
+        sin = Math.sin(Math.PI/6),
+        cos = Math.cos(Math.PI/6),
+        p1  = [left - L/2,top + L/2],
+        p2  = [left + L*cos/2   - L/2,top + L   + L*sin/2],
+        p3  = [left + L*cos*1.5 - L/2,top + L   + L*sin/2],
+        p4  = [left + L*cos*2   - L/2,top + L/2],
+        p5  = [left + L*cos*1.5 - L/2,top - L*sin/2],
+        p6  = [left + L*cos/2   - L/2,top - L*sin/2],
+        pl  = [p1,p2,p3,p4,p5,p6],
+        ll  = [],
+        degrees = [90,30,150,90,30,150],
+        degree,line,i;
+    for(i=0; i<6; i++){
+      degree=degrees[i];
+      line=$("<div class='line' style='left: "+(pl[i][0])+"px; top: "+(pl[i][1])+"px;'></div>");
+      line.css({width     : L,
+                height    : 3,
+                position  : "absolute",
+                transform : "rotate("+degree+"deg)"
+               }
+      );
+      line.addClass('unhighlight');
+      //line.appendTo(map_el);
+      ll.push(line[0]); // take dom to create big jQuery selection
+    }
+    return $(ll);
+  };
+  Brush.prototype.draw_line = function(x1,y1,x2,y2){
+      var dx = x2-x1,
+          dy = y2-y1,
+          dd = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)),
+          pi = Math.PI,
+          cos_n = dx/dd,
+          //sin_n = dy/dd,
+          cos_c,cos_d,degree,x3,y3,line;
+          //cos_c,sin_c,cos_d,sin_d,degree,x3,y3,line;
+      
+      if (dy > 0){
+        cos_c = Math.acos(cos_n);
+        //sin_c = Math.asin(sin_n);
+      }
+      else{
+        cos_c = pi+pi-Math.acos(cos_n);
+        //sin_c = pi+pi-Math.asin(sin_n)+pi;
+      }
+      cos_d   = cos_c/(2*pi)*360;
+      //sin_d   = sin_c/(2*pi)*360;
+      degree  = cos_d;
+      x3      = (x1+x2)/2-dd/2;
+      y3      = (y1+y2)/2;
+      line = $("<div class='line' style='left: "+x3+"px; top: "+y3+"px;'></div>");
+      line.css({width     : dd,
+                //height    : 2,
+                position  : "absolute",
+                transform : "rotate("+degree+"deg)"
+               }
+      );
+      return line;
+  };
+  
+  function Designer(brush){
+    // Designer return composite object and low-level control model
+    this.brush=brush || new Brush();
+  }
+  
+  Designer.prototype.hex = function(m,n,left,top){
+    var els,el,bound;
+    els   = this.brush.draw_hex2(left,top);
+    el    = this.brush.attach_hex(left,top);
+    bound = this.brush.create_bound(left,top);
+    return {m     : m,
+            n     : n,
+            els   : els,
+            el    : el,
+            bound : bound};
+  };
+  Designer.prototype.draw_counter = function(){
+    var box,size,pad,l0,l1,l2;
+      box = $('<div></div>');
+      box.attr({'class':'counter'});
+      size = $('<div></div>');
+      size.attr({'class':'size'});
+      //size.html('XX');
+      size.appendTo(box);
+      pad = $('<div></div>');
+      pad.attr({'class':'pad'});
+      pad.appendTo(box);
+      l0 = $('<div></div>');
+      l0.attr({'class':'l0'});
+      l1 = $('<div></div>');
+      l1.attr({'class':'l1'});
+      l2 = $('<div></div>');
+      l2.attr({'class':'l2'});
+      
+      l0.appendTo(box);
+      l1.appendTo(box);
+      l2.appendTo(box);
+      return { box  : box,
+               size : size,
+               pad  : pad,
+               l0   : l0,
+               l1   : l1,
+               l2   : l2
+             };
+  };
+  Designer.prototype.unitBase = function(){
+    var obj  = {};
+    obj.els  = this.draw_counter();
+    obj.el   = obj.els.box;
+    return obj;
+  };
+  Designer.prototype.padMap={
+      // this is binded(called) to a Designer object
+     'infantry' : function(){
+      var pad,line1,line2,unit;
+      
+      unit  = this.unitBase();
+      
+      pad   = unit.els.pad;
+      // following code paint a cross represent infantry in NATO military note system
+      line1 = this.brush.draw_line(0,0,26,16);
+      line2 = this.brush.draw_line(0,16,26,0);
+      line1.addClass('line');
+      line2.addClass('line');
+      line1.appendTo(pad);
+      line2.appendTo(pad);
+      unit.els.line=[line1,line2];
+      return unit;
+    },
+    
+    'cavalry' : function(){
+      var pad,line2,unit;
+      
+      unit  = this.unitBase();
+      
+      pad   = unit.els.pad;
+      line2 = this.brush.draw_line(0,16,25,0);
+      line2.addClass('line');
+      line2.appendTo(pad);
+      unit.els.line = [line2];
+      return unit;
+    },
+    
+    'HQ' : function(){
+      var pad,line1,line2,unit;
+      
+      unit  = this.unitBase();
+      
+      pad   = unit.els.pad;
+      line1 = this.brush.draw_line(0,0,13,0);
+      line2 = this.brush.draw_line(13,8,25,8);
+      line1.css({'height':10});
+      line2.css({'height':10});
+      line1.addClass('line');
+      line2.addClass('line');
+      line1.appendTo(pad);
+      line2.appendTo(pad);
+      unit.els.line=[line1,line2];
+      
+      return unit;
+    },
+    
+    'Artillery' : function(){
+      var pad,hole,unit;
+      
+      unit  = this.unitBase();
+      
+      pad   = unit.els.pad;
+      hole  = $('<div></div>');
+      hole.css({width   : 5,
+                height  : 5,
+                'border-radius' : '6px',
+                left   : '40%',
+                right  : '40%',
+                top    : '40%',
+                bottom : '40%',
+                position  : 'absolute'});
+      hole.addClass('line');
+      hole.appendTo(pad);
+      unit.els.line=[hole];
+      
+      return unit;
+    },
+    
+    'Panzer' : function(){
+      var pad,hole,unit;
+      
+      unit  = this.unitBase();
+      
+      pad   = unit.els.pad;
+      hole  = $('<div></div>');
+      hole.css({width:14,
+                height:8,
+                'border-radius': '5px/5px',
+                left:'4px',
+                top:'3px',
+                position:'absolute'});
+      hole.appendTo(pad);
+      unit.els.line=[hole];
+      return unit;
+    },
+    
+    'Horse Artillery' : function(){
+      var pad,hole,line2,unit;
+      
+      unit  = this.unitBase();
+      
+      pad   = unit.els.pad;
+      hole  = $('<div></div>');
+      hole.css({ width  : 7,
+                 height : 7,
+                 'border-radius' : '7px',
+                 left   : '9px',
+                 top    : '5px',
+                 position : 'absolute'});
+      hole.appendTo(pad);
+      line2   = this.brush.draw_line(0,16,25,0);
+      line2.appendTo(pad);
+      unit.els.line = [hole,line2];
+      
+      return unit;
+    }
+  };
+  Designer.prototype.unit_factory = function(pad){
+        var unitDom = this.padMap[pad].call(this);
+        //unitDom.el.appendTo(map_el);
+        return unitDom;
+  };
 
   function Painter(map_el,config){
     
@@ -39,17 +314,24 @@ var domplot = (function ($) {
     //   * edge_length
     //   * counter_x
     //   * counter_y
-    //   * default_hex_type
+    //
+    //   * map_el
+    //   * designer
+    //   * brush
     
-    var short_edge_length,attach_edge,counter_x,counter_y,default_hex_type,unit_factory;
+    var short_edge_length,counter_x,counter_y,
+        designer,brush;
     
     config            = config || {};
     short_edge_length = config.edge_length || 50;
-    attach_edge       = short_edge_length * 1.5;
+    //attach_edge       = short_edge_length * 1.5;
     counter_x         = config.counter_x || short_edge_length * 0.96;
     counter_y         = config.counter_y || short_edge_length * 0.96;
-    default_hex_type  = config.default_hex_type || 'tip';
+    //default_hex_type  = config.default_hex_type || 'tip';
     //pad_length        = config.pad_length || counter_x/2;
+    brush             = config.brush    || new Brush(config);
+    designer          = config.designer || new Designer(brush);
+    
     
     addStyle({'.hex .head'  :
                 {'border-bottom-width' : short_edge_length/2+'px',
@@ -70,130 +352,11 @@ var domplot = (function ($) {
                   'height'             : counter_y+'px',
                 }
     });
-        
-    
-    function draw_hex2(left,top){
-      // css version
-      var root = $('<div></div>');
-      root.addClass('hex');
-      root.css({top      : top-short_edge_length/2,
-                left     : left,
-                position : 'absolute'}
-      );
-      root.appendTo(map_el);
-      ['head','center','tail'].forEach(function(cname){
-        var c=$("<div></div>");
-        c.addClass(cname);
-        c.appendTo(root);
-      });
-      return root;
-    }
-
-
-    function attach_hex(left,top){
-      var base      = $('<div></div>'),
-          diff_left = short_edge_length*Math.cos(Math.PI/6)-attach_edge/2,
-          diff_top  = (attach_edge-short_edge_length)/2;
-      
-      base.css({width    : attach_edge,
-                height   : attach_edge,
-                position : 'absolute',
-                left     : left+diff_left+'px',
-                top      : top-diff_top+'px'
-               }
-      );
-      base.appendTo(map_el);	
-      return base;
-    }
-
-
-    
-    function create_bound(left,top){
-      // create bound around hex
-      var L   = short_edge_length,
-          sin = Math.sin(Math.PI/6),
-          cos = Math.cos(Math.PI/6),
-          p1  = [left-short_edge_length/2,top+short_edge_length/2],
-          p2  = [left+L*cos/2-L/2,top+L+L*sin/2],
-          p3  = [left+L*cos*1.5-L/2,top+L+L*sin/2],
-          p4  = [left+L*cos*2-L/2,top+L/2],
-          p5  = [left+L*cos*1.5-L/2,top-L*sin/2],
-          p6  = [left+L*cos/2-L/2,top-L*sin/2],
-          pl  = [p1,p2,p3,p4,p5,p6],
-          ll  = [],
-          degrees = [90,30,150,90,30,150],
-          degree,line,i;
-      for(i=0; i<6; i++){
-        degree=degrees[i];
-        line=$("<div class='line' style='left: "+(pl[i][0])+"px; top: "+(pl[i][1])+"px;'></div>");
-        line.css({width     : L,
-                  height    : 3,
-                  position  : "absolute",
-                  transform : "rotate("+degree+"deg)"
-                 }
-        );
-        line.addClass('unhighlight');
-        line.appendTo(map_el);
-        ll.push(line);
-      }
-      return ll;
-    }
-        
-
-    
-    function draw_line(x1,y1,x2,y2){
-        var dx = x2-x1,
-            dy = y2-y1,
-            dd = Math.sqrt(Math.pow(dx,2)+Math.pow(dy,2)),
-            pi = Math.PI,
-            cos_n = dx/dd,
-            //sin_n = dy/dd,
-            cos_c,cos_d,degree,x3,y3,line;
-            //cos_c,sin_c,cos_d,sin_d,degree,x3,y3,line;
-        
-        if (dy > 0){
-          cos_c = Math.acos(cos_n);
-          //sin_c = Math.asin(sin_n);
-        }
-        else{
-          cos_c = pi+pi-Math.acos(cos_n);
-          //sin_c = pi+pi-Math.asin(sin_n)+pi;
-        }
-        cos_d   = cos_c/(2*pi)*360;
-        //sin_d   = sin_c/(2*pi)*360;
-        degree  = cos_d;
-        x3      = (x1+x2)/2-dd/2;
-        y3      = (y1+y2)/2;
-        line = $("<div class='line' style='left: "+x3+"px; top: "+y3+"px;'></div>");
-        line.css({width     : dd,
-                  //height    : 2,
-                  position  : "absolute",
-                  transform : "rotate("+degree+"deg)"
-                 }
-        );
-        return line;
-    }
-    
-    function hex(x,y,left,top){
-      var m,n,els,el,bound;
-      m     = x;
-      n     = y;// hell name for compatibel
-      els   = draw_hex2(left,top,default_hex_type);
-      el    = attach_hex(left,top);
-      bound = create_bound(left,top);
-      return {x     : x,
-              y     : y,
-              m     : m,
-              n     : n,
-              els   : els,
-              el    : el,
-              bound : bound};
-    }
     
     function scale(i,j){
       var diff_i,diff_j,diff_k,left,top;
-      diff_i = short_edge_length*Math.sin(Math.PI/6)+short_edge_length;
-      diff_j = short_edge_length*Math.cos(Math.PI/6)*2;
+      diff_i = short_edge_length * Math.sin(Math.PI/6) + short_edge_length;
+      diff_j = short_edge_length * Math.cos(Math.PI/6) * 2;
       if ((i%2) === 1){
         diff_k = short_edge_length*Math.cos(Math.PI/6);
       }
@@ -202,222 +365,66 @@ var domplot = (function ($) {
       }
       left=j*diff_j+diff_k;
       top=i*diff_i;
-      return {left:left,top:top};
+      return {left : left,
+              top  : top};
     }
     
     function locUnit(m,n){
       var mat_mn,left,top;
       mat_mn  = scale(m,n);
-      left=mat_mn.left+short_edge_length*Math.cos(Math.PI/6)-counter_x/2;
-      top=mat_mn.top+short_edge_length/2-counter_y/2;
-      return {left:left,top:top};
+      left = mat_mn.left + short_edge_length*Math.cos(Math.PI/6) - counter_x/2;
+      top  = mat_mn.top  + short_edge_length/2 - counter_y/2;
+      return {left  : left,
+              top   : top};
     }
     
     function create_hexs(m,n){
       //test function
       var i,j,
           mat = [],
-          line,
-          left_top;
+          row,
+          left_top,
+          hex;
       
-      for (i = 0; i < m;i++){
-        line = [];
+      for (i = 0; i < m; i++){
+        row = [];
         for(j = 0; j < n;j++){
           left_top = scale(i,j);
-          line.push(hex(i,j,left_top.left,left_top.top));
+          hex=designer.hex(i,j,left_top.left,left_top.top);
+          hex.els.appendTo(map_el);
+          hex.el.appendTo(map_el);// browser only response later dom event
+          hex.bound.appendTo(map_el);
+          row.push(hex);
         }
-        mat.push(line);
+        mat.push(row);
       }
       return mat;
     }
     
-    
-    unit_factory=(function(){
-      
-      var padMap;
-      
-      function draw_counter(){
-        var box,size,pad,l0,l1,l2;
-          box = $('<div></div>');
-          box.attr({'class':'counter'});
-          size = $('<div></div>');
-          size.attr({'class':'size'});
-          //size.html('XX');
-          size.appendTo(box);
-          pad = $('<div></div>');
-          pad.attr({'class':'pad'});
-          pad.appendTo(box);
-          l0 = $('<div></div>');
-          l0.attr({'class':'l0'});
-          l1 = $('<div></div>');
-          l1.attr({'class':'l1'});
-          l2 = $('<div></div>');
-          l2.attr({'class':'l2'});
-          
-          l0.appendTo(box);
-          l1.appendTo(box);
-          l2.appendTo(box);
-          return { box  : box,
-                   size : size,
-                   pad  : pad,
-                   l0   : l0,
-                   l1   : l1,
-                   l2   : l2
-                 };
-      }
-      
-      function Unit(){
-        this.els=draw_counter();
-        this.el=this.els.box;
-      }
-
-      
-      padMap={
-         'infantry' : function(){
-          var pad,line1,line2;
-          
-          Unit.call(this);
-          
-          pad=this.els.pad;
-          // following code paint a cross represent infantry in NATO military note system
-          line1=draw_line(0,0,26,16);
-          line2=draw_line(0,16,26,0);
-          line1.addClass('line');
-          line2.addClass('line');
-          line1.appendTo(pad);
-          line2.appendTo(pad);
-          this.els.line=[line1,line2];
-        },
-        
-        'cavalry' : function(){
-          var pad,line2;
-          
-          Unit.call(this);
-          
-          pad=this.els.pad;
-          line2=draw_line(0,16,25,0);
-          line2.addClass('line');
-          line2.appendTo(pad);
-          this.els.line=[line2];
-        },
-        
-        'HQ' : function(){
-          var pad,line1,line2;
-          
-          Unit.call(this);
-          
-          pad=this.els.pad;
-          line1=draw_line(0,0,13,0);
-          line2=draw_line(13,8,25,8);
-          line1.css({'height':10});
-          line2.css({'height':10});
-          line1.addClass('line');
-          line2.addClass('line');
-          line1.appendTo(pad);
-          line2.appendTo(pad);
-          this.els.line=[line1,line2];
-        },
-        
-        'Artillery' : function(){
-          var pad,hole;
-          
-          Unit.call(this);
-          
-          pad=this.els.pad;
-          hole=$('<div></div>');
-          hole.css({width   : 5,
-                    height  : 5,
-                    'border-radius' : '6px',
-                    left   : '40%',
-                    right  : '40%',
-                    top    : '40%',
-                    bottom : '40%',
-                    position  : 'absolute'});
-          hole.addClass('line');
-          hole.appendTo(pad);
-          this.els.line=[hole];
-        },
-        
-        'Panzer' : function(){
-          var pad,hole;
-          
-          Unit.call(this);
-          
-          pad=this.els.pad;
-          hole=$('<div></div>');
-          hole.css({width:14,
-                    height:8,
-                    'border-radius': '5px/5px',
-                    left:'4px',
-                    top:'3px',
-                    position:'absolute'});
-          hole.appendTo(pad);
-          this.els.line=[hole];
-          // rewrite set_pad_line_color method because it is not fit ordinary plot model
-          this.set_pad_line_color=function(rgb){
-            var r=rgb[0],
-                g=rgb[1],
-                b=rgb[2],
-                rgbs='rgb('+r+','+g+','+b+')';
-            this.els.pad.addClass('pad');
-            this.els.line.forEach(function(line){
-              line.css({'background-color':'transparent',
-                        border:'2px '+rgbs+' solid'});
-            });
-          };
-        },
-        
-        'Horse Artillery' : function(){
-          var pad,hole,line2;
-          
-          Unit.call(this);
-          
-          pad=this.els.pad;
-          hole=$('<div></div>');
-          hole.css({width:7,
-                    height:7,
-                    'border-radius': '7px',
-                    left:'9px',
-                    top:'5px',
-                    position:'absolute'});
-          hole.appendTo(pad);
-          line2=draw_line(0,16,25,0);
-          line2.appendTo(pad);
-          this.els.line=[hole,line2];
-        }
-      };
-      
-      return function (pad){
-        var unitDom=new padMap[pad]();
-        unitDom.el.appendTo(map_el);
-        return unitDom;
-      };
-    }());
+    function unit_factory(pad){
+      var unitDom=designer.unit_factory(pad);
+      unitDom.el.appendTo(map_el);
+      return unitDom;
+    }
         
     return {
-      draw_line    : draw_line,
-      create_bound : create_bound,
-      create_hexs  : create_hexs,
-      draw_hex2    : draw_hex2,
       scale        : scale,
-      unit_factory : unit_factory,
-      locUnit      : locUnit
+      locUnit      : locUnit,
+      create_hexs  : create_hexs,
+      unit_factory : unit_factory
     };
   }
   
-	function highlight(that){
-		that.bound.forEach(function(bound){
-			bound.removeClass('unhighlight');
-			bound.addClass('highlight');
-		});
-	}
+  function highlight(hex){
+    hex.bound.removeClass('unhighlight');
+    hex.bound.addClass('highlight');
+  }
   
-	function de_highlight(that){
-		that.bound.forEach(function(bound){
-			bound.removeClass('highlight');
-			bound.addClass('unhighlight');
-		});
-	}
+  function de_highlight(hex){
+    hex.bound.removeClass('highlight');
+    hex.bound.addClass('unhighlight');
+
+  }
 
   
   function Hexs(setting){
@@ -483,10 +490,10 @@ var domplot = (function ($) {
     
     if(setting.classUpdateEvent){
       setting.classUpdateEvent.register(function(i,j,klass){
-        var hex=hexs[i][j],
+        var _hex=hexs[i][j],
             oldClass=classCache[[i,j]];
-        hex.els.removeClass(oldClass);
-        hex.els.addClass(klass);
+        _hex.els.removeClass(oldClass);
+        _hex.els.addClass(klass);
         classCache[[i,j]]=klass;
       });
     }
@@ -523,7 +530,7 @@ var domplot = (function ($) {
     //   * unitMap - function, return dicts give information about units 
     //     * pad - indicate what pad unit hold
     //     * l0,l1,l2,size - number will be display
-    //     * color - french, kingdom etc...
+    //     * color - French, Kingdom etc...
     //   * clickEvent     - trigger and send id of object
     //   * moveEvent  - id,m,n,callback
     //   * setEvent   - id,m,n
@@ -544,7 +551,7 @@ var domplot = (function ($) {
     painter       = setting.painter || Painter(setting.dom_el,setting.config);
     unitList      = [];
     duration      = setting.duration || 100;
-    pattern       = setting.pattern || 'linear';
+    pattern       = setting.pattern  || 'linear';
     stackSize     = setting.stackSize;
     is_used_stack = stackSize && stackSize>=2;
     
@@ -567,17 +574,17 @@ var domplot = (function ($) {
             loc=painter.locUnit(i,j);
             el.animate({left : loc.left,
                         top  : loc.top},
-                        duration,pattern,callback);
+                        duration, pattern, callback);
       },
       setEvent : function(id,i,j){
         var unit  = domList[id],
             el    = unit.el,
             loc   = painter.locUnit(i,j);
-            if(unit.m===undefined || unit.n===undefined){
-              el.css({display:'block'});
+            if(unit.m === undefined || unit.n === undefined){
+              el.css({display : 'block'});
             }
             if(i === undefined || j === undefined){
-              el.css({display:'none'});
+              el.css({display : 'none'});
             }
             unit.m=i;
             unit.n=j;
@@ -593,7 +600,7 @@ var domplot = (function ($) {
         var unit=domList[id];
         unit.m   = undefined;
         unit.n   = undefined;
-        unit.el.css({display:'none'});
+        unit.el.css({display : 'none'});
       }         
     };
     
@@ -753,6 +760,8 @@ var domplot = (function ($) {
   
   
   return {
+    Brush    : Brush,
+    Designer : Designer,
     Painter  : Painter,
     Hexs     : Hexs,
     Counters : Counters

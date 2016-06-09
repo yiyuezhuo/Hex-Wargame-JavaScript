@@ -483,7 +483,7 @@ var mapModel=(function(){
     unit_l=create_units(scenario_dic);
 
     unit_l.forEach(function(unit){
-      if (unit.m!==undefined && unit.n!==undefined){
+      if (unit.m !== undefined && unit.n !== undefined){
         unit.set_hex(unit.m,unit.n);
       }
       else{
