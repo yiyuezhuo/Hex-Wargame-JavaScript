@@ -1,6 +1,6 @@
 /*
  * domplot.js
- * provide function plot line and hex in DOM way.
+ * provide function to plot line and hex in DOM way.
 */
 
 /*jslint          browser  : true,  continue  : true,
@@ -32,6 +32,16 @@ var domplot = (function ($) {
     css_el=$('<style>'+css_code+'</style>');
     css_el.appendTo(head);
   }
+  
+  function Hex(){}
+  Hex.prototype.setLoc = function(){
+    
+  };
+  Hex.prototype.setMap = function(map_el){
+    this.els.appendTo(map_el);
+    this.el.appendTo(map_el);// browser only response later dom event
+    this.bound.appendTo(map_el);
+  };
   
   function Brush(config){
     // Brush provide plot utility function, they only return pure dom object
@@ -145,15 +155,16 @@ var domplot = (function ($) {
   }
   
   Designer.prototype.hex = function(m,n,left,top){
-    var els,el,bound;
-    els   = this.brush.draw_hex2(left,top);
-    el    = this.brush.attach_hex(left,top);
-    bound = this.brush.create_bound(left,top);
-    return {m     : m,
-            n     : n,
-            els   : els,
-            el    : el,
-            bound : bound};
+    var hex   = new Hex();
+    
+    hex.m = m;
+    hex.n = n;
+    
+    hex.els   = this.brush.draw_hex2(left,top);
+    hex.el    = this.brush.attach_hex(left,top);
+    hex.bound = this.brush.create_bound(left,top);
+    
+    return hex;
   };
   Designer.prototype.draw_counter = function(){
     var box,size,pad,l0,l1,l2;
@@ -391,9 +402,10 @@ var domplot = (function ($) {
         for(j = 0; j < n;j++){
           left_top = scale(i,j);
           hex=designer.hex(i,j,left_top.left,left_top.top);
-          hex.els.appendTo(map_el);
-          hex.el.appendTo(map_el);// browser only response later dom event
-          hex.bound.appendTo(map_el);
+          //hex.els.appendTo(map_el);
+          //hex.el.appendTo(map_el);// browser only response later dom event
+          //hex.bound.appendTo(map_el);
+          hex.setMap(map_el);
           row.push(hex);
         }
         mat.push(row);
@@ -521,7 +533,7 @@ var domplot = (function ($) {
   
   
   function Counters(setting){
-    // Counters take a dom_el and a dictionary setting it can has these attribute:
+    // Counters take a dom_el and a dictionary setting it could hold these attributes:
     //   * painter - 
     //   * dom_el - if painter is not given, dom_el will be used to create new one.
     //   * config    - a map to config hex grid shape be used when painter is not given
@@ -541,7 +553,7 @@ var domplot = (function ($) {
     //   * pattern
     //   * stackSize - 1-3 if 1 or undefined then use un-stack mode 
     //                      else add stack class state and change behavior on set and move_to
-    //// Event should has register,trigger method to hold a function this object assign to it.
+    //// Event should keep register,trigger method to hold a function this object assign to it.
     
     var unitMap,painter,domList,i,unitList,duration,pattern,
         stackSize,is_used_stack,unstackHandler,stackHandler,handler;

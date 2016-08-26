@@ -204,6 +204,7 @@ function gameInit(data){
   resetFocusEvent.register(function(){
     Unit_click_box.reset_focus();
   });
+  
 
   clickHexEvent.register(stateSchema(
               {phase : 'move',
@@ -255,9 +256,73 @@ function gameInit(data){
                 }
               }));
 
+  /*
   clickUnitEvent.register(function(unit){
     unit_click_box.unit_click(unit);
   });
+  */
+  clickUnitEvent.register(stateSchema(
+                {phase : 'ready'},
+                function(unit){
+                  alert("In ready phase, you can only click next phase or run AI button in left bar.");
+                }));
+  
+  clickUnitEvent.register(stateSchema(
+                {phase : 'move',
+                 click : 'choosed'},
+                function(unit){
+                  unit_click_box.try_choose(unit);
+                }));
+                
+  clickUnitEvent.register(stateSchema(
+                {phase : 'move',
+                 click : 'start'},
+                function(unit){
+                  unit_click_box.try_choose(unit);
+                }));
+                
+  clickUnitEvent.register(stateSchema(
+                {phase : 'combat',
+                 click : 'join'},
+                function(unit){
+                  console.log('enter combat');
+                  if(unit.side===stateMap.side){
+                    battle_box.join(unit);
+                  }
+                  else{
+                    hex_d[[unit.m,unit.n]].allUnit().forEach(function(unit){
+                      battle_box.join(unit);
+                    })
+                  }
+                }));
+                
+  clickUnitEvent.register(stateSchema(
+                {phase : 'combat',
+                 click : 'wait_choose'},
+                function(unit){
+                  if (battle_box.pursuit_unit_able(unit)){
+                    this.choose_unit=unit;
+                    stateMap.click='wait_hex';
+                    
+                  }
+                  else{
+                    console.log('illege unit');
+                  }
+                }));
+
+  clickUnitEvent.register(stateSchema(
+                {phase : 'combat',
+                 click : 'wait_hex'},
+                function(unit){
+                  if (battle_box.pursuit_unit_able(unit)){
+                    this.choose_unit=unit;
+                    stateMap.click='wait_hex';
+                  }
+                  else{
+                    console.log('illege unit');
+                  }
+                }));
+
 
   nextPhaseEvent.trigger(); // init -> ready
 
@@ -372,6 +437,7 @@ function Unit_click_box(){
 	// handle event about player unit click 
 	stateMap.click='start';
 	this.choose_unit=undefined;
+  /*
 	this.unit_click=function(unit){
 		// player click enter point
 		//var el=unit.el;
@@ -425,6 +491,7 @@ function Unit_click_box(){
 		}
 		console.log('click end');
 	}
+  */
 	this.reset_focus=function(){
 		var set=this.choose_unit.move_range();
 		this.remove_focus();
