@@ -8,11 +8,15 @@ Code is cheap ,show me the image:
 
 ![Alt image](/preview/p.gif)
 
-<a href="http://yiyuezhuo.github.io/games/Hex-Wargame-JavaScript/index.html">play it online(GitHub page)</a>
+<a href="http://yiyuezhuo.github.io/Hex-Wargame-JavaScript/">play it online(GitHub page)</a>
 
 or you can clone this repo and open `index.html` file to enjoy it.
 
-## Customize Scenario develope
+## Customized Scenario developement by editor
+
+<a href="http://yiyuezhuo.github.io/Hex-Wargame-JavaScript/editor.html">Editor</a>
+
+## Customized Scenario developement by script(deprecated)
 
 I write a Python script to integrate some `.csv` file to a `*.js` scenario file that engine can run it.
 
