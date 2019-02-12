@@ -24,7 +24,7 @@
   right : 0;
   top   : 0; 
   position   : absolute;
-  font-size  : 10%;
+  font-size  : 70%;
   text-align : center;
   -webkit-user-select : none;
   user-select : none;
@@ -35,7 +35,7 @@
   left : 12%;  /* 6/50 */
   top  : 68%; /* 34/50 */
   position  : absolute;
-  font-size : 10%;
+  font-size : 75%;
   -webkit-user-select : none;
   user-select : none;
 
@@ -45,7 +45,7 @@
   left : 36%; /* 18/50 */
   top  : 68%; 
   position  : absolute;
-  font-size : 10%;
+  font-size : 75%;
   -webkit-user-select : none;
   user-select : none;
 
@@ -55,7 +55,7 @@
   left : 72%; /* 36/50 */
   top  : 68%;
   position  : absolute;
-  font-size : 10%;
+  font-size : 75%;
   -webkit-user-select : none;
   user-select : none;
 
