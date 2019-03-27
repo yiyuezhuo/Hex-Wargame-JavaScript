@@ -100,13 +100,16 @@ class Scenario(object):
             unit.id=i
     def add_unit(self,obj):
         self.unit_list.append(obj)
+    '''
     def auto_player(self,nameA,nameB):
         playerA=Player(0)
         playerB=Player(1)
         playerA.name=nameA
         playerB.name=nameB
         self.player_list=[playerA,playerB]
-                
+    '''
+
+'''                
 class Kingdom(Unit):
     def __init__(self):
         Unit.__init__(self)
@@ -143,6 +146,7 @@ class Empire_p(Player):
     def __init__(self):
         self.id=1
         self.name='Empire'
+'''
         
 class CSV_model(object):
     def __init__(self,scenario=None):

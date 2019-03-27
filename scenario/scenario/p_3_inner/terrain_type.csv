@@ -1,0 +1,9 @@
+name,base_cost,pass
+open,1,TRUE
+hill,3,TRUE
+river,10,TRUE
+forest,3,TRUE
+hill,4,TRUE
+town,1,TRUE
+trench,2,TRUE
+block,20,TRUE
