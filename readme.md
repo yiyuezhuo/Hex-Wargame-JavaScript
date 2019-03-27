@@ -12,26 +12,26 @@ Code is cheap ,show me the image:
 
 or you can clone this repo and open `index.html` file to enjoy it.
 
-## Customized Scenario developement by editor
+## Customized scenario development by editor (under development)
 
 <a href="http://yiyuezhuo.github.io/Hex-Wargame-JavaScript/editor.html">Editor</a>
 
-## Customized Scenario developement by script(deprecated)
+## Customized scenario development by script
 
-I write a Python script to integrate some `.csv` file to a `*.js` scenario file that engine can run it.
+I write a Python script to merge some `.csv` file into a `*.js` scenario file so that engine can run it.
 
-However I found `.csv` file can be used edit data in visualization table software (eg. Excel) very easily. It's be familiar with 
-unprogramer and a lot of wargame player want to develope their single game.
+However I found `.csv` file can be used to edit data in visualization table software (eg. Excel) very easily. It's familiar with 
+program newbie and a lot of wargame player who want to develop their unique game.
 
 ### scenario_maker.py
 
 #### Usage
 
 	$ python scenario_maker.py scenario_dir output.js
-	
+
 ### `.csv` scenario define document structure
 
-#### map about
+#### Map configuration
 
 * `block.csv`
 * `capture.csv`
@@ -39,24 +39,55 @@ unprogramer and a lot of wargame player want to develope their single game.
 * `terrain.csv`
 * `VP.csv`
 
-For example,if `terrain.csv` `(2,3)` grid (line 2,column 3) is "open",
-it mean the terrain of hex(2,3) in game map will be "open". 
+For example,if ,in `terrain.csv` , grid of `(2,3)` (line 2,column 3) is "open",
+it mean that the terrain of hex(2,3) in game map will be "open". 
 
-#### unit setup
+The style is motivated by HPS & JT games.
 
-* `unit.csv` unit list
-* `place.csv` set unit location
+#### Unit setup
 
-#### other csv file
+* `unit.csv` Unit list
+* `place.csv` Set unit location
 
-* `AI.csv` guide AI how to attack
-* `CRT.csv` combat result table 
-* `player.csv` player level information
-* `setting.csv` some setting
-* `terrain_type.csv` terrain movement cost,moveable etc
+#### Other csv file
 
-#### other configure file
+* `AI.csv` Guide AI how to attack
+* `CRT.csv` Combat result table 
+* `player.csv` Player level information.
+* `setting.csv` Some setting.
+* `terrain_type.csv` Attributions of terrain movement cost, moveable etc.
 
-* `script.js` this used a special format,it lead you can trigger some event in game without dive in detail.
-* `unit.css` set counter color .
-* `hex.css` set hex and color .
+#### Other configure file
+
+* `script.js` This use a special format. Allowing you trigger some event in game without dive in detail. But some knowledge about intrinsic system will be helpful.
+* `unit.css` Set counter color .
+* `hex.css` Set hex and color .
+
+The configurations handled by two `*.css` files was handled by `*.csv` files in old version, but those style configure being in `*.css` will be more reasonable since you can dynamic modify them without running the python script again and again to see the final effect of new art.
+
+## Advanced configuration
+
+### Counter shape
+
+`domplot.js`: The counter is plotted by pure DOM. For example, infantry symbol, a pair of cross lines in NOTA notations, is plotted by:
+
+```javascript
+     'infantry' : function(){
+      var pad,line1,line2,unit;
+      
+      unit  = this.unitBase();
+      
+      pad   = unit.els.pad;
+      // following code paint a cross representing infantry in NATO Joint Military Symbology
+      line1 = this.brush.draw_line(0,0,26,16);
+      line2 = this.brush.draw_line(0,16,26,0);
+      line1.addClass('line');
+      line2.addClass('line');
+      line1.appendTo(pad);
+      line2.appendTo(pad);
+      unit.els.line=[line1,line2];
+      return unit;
+    },
+
+```
+
