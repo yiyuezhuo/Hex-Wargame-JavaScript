@@ -209,7 +209,7 @@ var domplot = (function ($) {
       unit  = this.unitBase();
       
       pad   = unit.els.pad;
-      // following code paint a cross represent infantry in NATO military note system
+      // following code paint a cross representing infantry in NATO Joint Military Symbology
       line1 = this.brush.draw_line(0,0,26,16);
       line2 = this.brush.draw_line(0,16,26,0);
       line1.addClass('line');
