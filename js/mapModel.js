@@ -191,7 +191,7 @@ var mapModel=(function(){
       this.surplus_map={};
       this.removed = _unit.m === undefined || _unit.n === undefined ? true : false;
       this.fight_number=0;// fight time in this turn 
-      this.combat_range=1;
+      // this.combat_range=1;
     }
 
     Unit.prototype.ready=function(){

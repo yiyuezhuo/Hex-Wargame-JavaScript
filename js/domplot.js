@@ -567,7 +567,7 @@ var domplot = (function ($) {
     stackSize     = setting.stackSize;
     is_used_stack = stackSize && stackSize>=2;
     
-    // Begin handler swicher
+    // Begin handler switcher
     
     unstackHandler = {
       clickEvent : function(i){
@@ -731,7 +731,7 @@ var domplot = (function ($) {
     
     handler = is_used_stack ? stackHandler : unstackHandler;
     
-    // End handler swicher
+    // End handler switcher
     
     
     

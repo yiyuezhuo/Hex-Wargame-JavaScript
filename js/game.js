@@ -167,6 +167,7 @@ function gameInit(data){
     },function(){
       stateMap.click='join';
       change_phase_to(stateMap.side,'combat');
+      battle_box.reset();
       toolbox.combat_box.show();
       return true;
     }));
@@ -252,7 +253,7 @@ function gameInit(data){
                   console.log('I can do that!');
                 }
                 else{
-                  console.log(hex.m,hex.n,'illege hex');
+                  console.log(hex.m,hex.n,'illegal hex');
                 }
               }));
 
@@ -264,7 +265,7 @@ function gameInit(data){
   clickUnitEvent.register(stateSchema(
                 {phase : 'ready'},
                 function(unit){
-                  alert("In ready phase, you can only click next phase or run AI button in left bar.");
+                  alert("In ready phase, you can only click 'next phase' or 'run AI' button in the left sidebar.");
                 }));
   
   clickUnitEvent.register(stateSchema(
@@ -301,12 +302,12 @@ function gameInit(data){
                  click : 'wait_choose'},
                 function(unit){
                   if (battle_box.pursuit_unit_able(unit)){
-                    this.choose_unit=unit;
+                    // this.choose_unit=unit;
+                    unit_click_box.choose_unit = unit;
                     stateMap.click='wait_hex';
-                    
                   }
                   else{
-                    console.log('illege unit');
+                    console.log('illegal unit');
                   }
                 }));
 
@@ -315,11 +316,12 @@ function gameInit(data){
                  click : 'wait_hex'},
                 function(unit){
                   if (battle_box.pursuit_unit_able(unit)){
-                    this.choose_unit=unit;
+                    // this.choose_unit=unit;
+                    unit_click_box.choose_unit = unit;
                     stateMap.click='wait_hex';
                   }
                   else{
-                    console.log('illege unit');
+                    console.log('illegal unit');
                   }
                 }));
 
@@ -475,7 +477,7 @@ function Unit_click_box(){
               
 						}
 						else{
-							console.log('illege unit');
+							console.log('illegal unit');
 						}
             break;
 					case 'wait_hex':
@@ -484,7 +486,7 @@ function Unit_click_box(){
 							stateMap.click='wait_hex';
 						}
 						else{
-							console.log('illege unit');
+							console.log('illegal unit');
 						}
             break;
 				}
@@ -922,15 +924,32 @@ function Battle_box(){
   this.join=function(unit){
     battle_matcher.enter(unit);
   }
+
+  this.do_it_ui=function()
+  {
+    if(stateMap.phase !== "combat" || stateMap.click !== "join"){
+      console.log("do it is not valid when there's no combat or resolving pursuiting"); // reset here as well?
+      return;
+    } 
+    that.do_it();
+  }
   
 	this.do_it=function(){
 		// complete handle and reset state
+
+    /*
+    if(stateMap.phase !== "combat" || stateMap.click !== "join"){
+      console.log("do it is not valid when there's no combat or resolving pursuiting"); // reset here as well?
+      return;
+    }
+    */
     
     if(battle_matcher.enterEnd()){
       var message=battle_matcher.message();
     }
     else{
-      this.reset();
+      // this.reset();
+      that.reset();
       return;
     }
     that.atk_unit_list=message.atk_unit_list;
@@ -1059,8 +1078,8 @@ function Toolbox(){
 	this.battle_odds_defence=$('#battle_odds_defence');
 	this.chase_a=$('#chase_a');
 	//this.AI_run_a=$('#AI_run_a');
-	this.do_it_a.click(battle_box.do_it);
-	//this.reset_a.click(battle_box.reset);
+	this.do_it_a.click(battle_box.do_it_ui);
+	//this.reset_a .click(battle_box.reset);
 	this.combat_box.hide();
 	this.chase_a.hide();
 	//this.AI_run_a.click(AI_run);
