@@ -1,5 +1,5 @@
 function AI_box_class(){
-	// this object should provide infromatiom by AI command setting
+	// this object should provide information according to the AI command setting
 	this.init_map={};//init map assign
 	this.pursuit_group={};
 	var that=this;
@@ -45,8 +45,6 @@ function AI_unit_move(unit){
 		target=md[0][0];
 	}
   
-	//target=eval('['+target+']')//ugly hack but i can not find a path solve it basicly.
-  //console.log('target');
   //console.log(target);
   if(target!==undefined){
     //target=target.split(',').map(Number);
@@ -169,7 +167,7 @@ var attackplan={
   },
   output:function(){
     var isSatisfy=this.battle_matcher.isSatisfy();
-    //console.log('isStatisfy',isSatisfy);
+    //console.log('isSatisfy',isSatisfy);
     //console.log(this.input_cache);
     if(isSatisfy){
       return this.input_cache;

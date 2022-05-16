@@ -202,7 +202,7 @@ var domplot = (function ($) {
     return obj;
   };
   Designer.prototype.padMap={
-      // this is binded(called) to a Designer object
+      // this is bound(called) to a Designer object
      'infantry' : function(){
       var pad,line1,line2,unit;
       
@@ -447,7 +447,7 @@ var domplot = (function ($) {
     //
     //   * m - rows
     //   * n - cols
-    //   * clickEvent     - event new object will trigger it when their dom recieved DOM event.
+    //   * clickEvent     - event new object will trigger it when their dom received DOM event.
     //   * classMap  - (i,j) -> a class 
     //   * highlightEvent - event will be register Grid method and fire it will highlight something
     //   * unhighlightEvent - as above.

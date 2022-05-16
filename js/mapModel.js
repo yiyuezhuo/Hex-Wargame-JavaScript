@@ -1,6 +1,6 @@
 /*
  * mapModel.js
- * provide object model to comtrol map logic
+ * provide object model to control map logic
 */
 
 /*jslint          browser  : true,  continue  : true,
@@ -21,7 +21,7 @@ var mapModel=(function(){
   }
   
   function hex_distance (n1,m1,n2,m2) {
-    //calulate the distance between two hex
+    // calculate the distance between two hexes
     var y1,x1,y2,x2,x,y;
     
     y1 = -n1;
@@ -220,7 +220,6 @@ var mapModel=(function(){
       }
       else{
         moveEvent.trigger(this.domId,m,n,function(){
-                          //console.log('wuyu');
                           resetFocusEvent.trigger();
                         });
       }

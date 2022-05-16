@@ -104,7 +104,7 @@
     });
   }
   else{
-    console.log('load default scenario');
+    console.log('load the default scenario');
     seriesLoadScripts(['scenario/output.js'],function(){
       gameInit(scenario_dic);
       console.log('default loaded');

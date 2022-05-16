@@ -35,7 +35,7 @@ function gameInit(data){
   var painter=domplot.Painter(map_el);
   
 
-  stateMap={ phase : 'init', //spciel phase only exists in first turn
+  stateMap={ phase : 'init', // A special phase only exists in first turn
              turn  : 1, 
              click : 'start',
              side  : 0};
@@ -216,7 +216,7 @@ function gameInit(data){
               
   clickHexEvent.register(stateSchema(
               {phase : 'move',
-               click : 'choosed'},
+               click : 'chosen'},
               function(hex){
                 //var hex=mat[i][j];
                 if (unit_click_box.choose_unit.move_range()[[hex.m,hex.n]]!==undefined){
@@ -270,7 +270,7 @@ function gameInit(data){
   
   clickUnitEvent.register(stateSchema(
                 {phase : 'move',
-                 click : 'choosed'},
+                 click : 'chosen'},
                 function(unit){
                   unit_click_box.try_choose(unit);
                 }));
@@ -418,7 +418,7 @@ function distance(x1,y1,x2,y2){
 }
 
 function hex_distance (n1,m1,n2,m2) {
-  //calulate the distance between two hex
+  // calculate the distance between two hexes
   var y1,x1,y2,x2,x,y;
   
   y1 = -n1;
@@ -448,10 +448,10 @@ function Unit_click_box(){
 			case 'move':
 				console.log('enter move')
 				switch(stateMap.click){
-					case 'start'://now state "start","choosed" is special for phase move
+					case 'start'://now state "start","chosen" is special for phase move
 						this.try_choose(unit);
 						break;
-					case 'choosed':
+					case 'chosen':
 						this.try_choose(unit);
 						break;
 				break;
@@ -516,7 +516,7 @@ function Unit_click_box(){
     if( unit.side===stateMap.side && stateMap.phase==='move'){
 			this.choose_unit=unit;
 			this.reset_focus();
-			stateMap.click='choosed';// if you are in this state and you click other hex,you should move to it.
+			stateMap.click='chosen';// if you are in this state and you click other hex,you should move to it.
 		}
 		else{
 			console.log('you can not choose a unit in error phase');
